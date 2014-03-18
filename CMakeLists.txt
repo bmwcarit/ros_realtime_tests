@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(timer_tests)
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
 )
@@ -33,36 +30,13 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${gtest_SOURCE_DIR}/include
+  ${gtest_SOURCE_DIR}
 )
 
-## Declare a cpp library
-# add_library(timer_tests
-#   src/${PROJECT_NAME}/timer_tests.cpp
-# )
+add_library(jonastest STATIC ${gtest_SOURCE_DIR}/src/gtest-all.cc)
+set_target_properties(jonastest PROPERTIES COMPILEFLAGS "")
 
-## Declare a cpp executable
-catkin_add_gtest(timer_tests_exec src/main.cpp)
+add_executable(timer_tests ./src/main.cpp)
+target_link_libraries(timer_tests jonastest pthread)
 
-#rosbuild_add_gtest_build_flags()
-
-## Add cmake target dependencies of the executable/library
-## as an example, message headers may need to be generated before nodes
-# add_dependencies(timer_tests_node timer_tests_generate_messages_cpp)
-
-## Specify libraries to link a library or executable target against
-# target_link_libraries(timer_tests_node
-#   ${catkin_LIBRARIES}
-# )
-
-#############
-## Testing ##
-#############
-
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_timer_tests.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
