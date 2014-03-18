@@ -1,0 +1,5 @@
+timer_tests is licensed under BSD 3-clause License. See LICENSE for further details.
+
+The following external components are distributed with this software:
+
+ * Google Test, redistributed under BSD 3-clause License. See gtest/LICENSE for further details.
