@@ -30,11 +30,11 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-  ${gtest_SOURCE_DIR}/include
-  ${gtest_SOURCE_DIR}
+  ./gtest/include
+  ./gtest
 )
 
-add_library(jonastest STATIC ${gtest_SOURCE_DIR}/src/gtest-all.cc)
+add_library(jonastest STATIC ./gtest/src/gtest-all.cc)
 set_target_properties(jonastest PROPERTIES COMPILEFLAGS "")
 
 add_executable(timer_tests ./src/main.cpp)
