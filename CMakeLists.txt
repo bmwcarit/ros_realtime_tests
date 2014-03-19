@@ -34,9 +34,10 @@ include_directories(
   ./gtest
 )
 
-add_library(jonastest STATIC ./gtest/src/gtest-all.cc)
-set_target_properties(jonastest PROPERTIES COMPILEFLAGS "")
+add_library(gtest_static STATIC ./gtest/src/gtest-all.cc)
+set_target_properties(gtest_static PROPERTIES COMPILEFLAGS "")
 
-add_executable(timer_tests ./src/main.cpp)
-target_link_libraries(timer_tests jonastest pthread)
+AUX_SOURCE_DIRECTORY(./src src_files)
+add_executable(timer_tests ${src_files})
+target_link_libraries(timer_tests gtest_static pthread ${catkin_LIBRARIES})
 
