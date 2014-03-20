@@ -1,19 +1,19 @@
 #include "RosOneShotTimerTestsFixture.h"
 #include "PrioritySwitcher.h"
 
-class RosOneShotTimerTests : public RosOneShotTimerTestsFixture {
+class RosOneShotTimerTestsRT : public RosOneShotTimerTestsFixture {
 protected:
 
 	static void SetUpTestCase()
 	{
 		setupSucceeded = false;
-		ASSERT_EQ(switchToNormalPriority(), 0);
+		ASSERT_EQ(switchToRealtimePriority(), 0);
 		RosOneShotTimerTestsFixture::SetUpTestCase();
 		setupSucceeded = true;
 	}
 };
 
-TEST_F(RosOneShotTimerTests, MaxLatencySmallerThan400MicroSecond)
+TEST_F(RosOneShotTimerTestsRT, MaxLatencySmallerThan400MicroSecond)
 {
 	for(int i = 0; i < amountTimeouts; i++)
 	{
@@ -21,7 +21,7 @@ TEST_F(RosOneShotTimerTests, MaxLatencySmallerThan400MicroSecond)
 	}
 }
 
-TEST_F(RosOneShotTimerTests, AverageLatencySmallerThan400MicroSecond)
+TEST_F(RosOneShotTimerTestsRT, AverageLatencySmallerThan400MicroSecond)
 {
 	for(int i = 0; i < amountTimeouts; i++)
 	{
@@ -29,7 +29,7 @@ TEST_F(RosOneShotTimerTests, AverageLatencySmallerThan400MicroSecond)
 	}
 }
 
-TEST_F(RosOneShotTimerTests, NoNegativeLatencies)
+TEST_F(RosOneShotTimerTestsRT, NoNegativeLatencies)
 {
 	for(int i = 0; i < amountTimeouts; i++)
 	{

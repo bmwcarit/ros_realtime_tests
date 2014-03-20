@@ -1,6 +1,8 @@
-#include "main.h"
 #include "Logger.h"
 #include "TestParams.h"
+#include "PrioritySwitcher.h"
+
+#include <gtest/gtest.h>
 
 TEST(SystemTest, SystemClockPrecisionOfAtLeast1MicroSecond)
 {
@@ -14,3 +16,14 @@ TEST(SystemTest, SystemClockPrecisionOfAtLeast1MicroSecond)
 	Logger::INFO(infoMessage);
 	ASSERT_LE(clockResolution.tv_nsec, 1000);
 }
+
+TEST(SystemTest, CanSwitchToRealtimePriority)
+{
+	ASSERT_EQ(switchToRealtimePriority(), 0);
+}
+
+TEST(SystemTest, CanSwitchBackToNormalPriority)
+{
+	ASSERT_EQ(switchToNormalPriority(), 0);
+}
+

@@ -5,15 +5,8 @@
 
 #include "ros/ros.h"
 
-#include <gtest/gtest.h>
-#include <time.h>
-#include <unistd.h>
-
 extern ros::NodeHandle* nodeHandle;
-extern struct timespec callbackTs;
-
-void timerCallback(const ros::TimerEvent&);
-void spinUntilCallbackCalled();
-
+extern int loops;
 
 #endif //MAIN_H_
+

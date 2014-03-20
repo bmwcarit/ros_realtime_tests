@@ -1,11 +1,10 @@
 #include "main.h"
 #include "Logger.h"
-#include "TestParams.h"
+
+#include <gtest/gtest.h>
 
 ros::NodeHandle* nodeHandle;
-struct timespec callbackTs;
-bool callbackCalled = false;
-
+int loops = 1000000;
 
 int main(int argc, char* argv[])
 {
@@ -15,17 +14,3 @@ int main(int argc, char* argv[])
 	return RUN_ALL_TESTS();
 }
 
-void timerCallback(const ros::TimerEvent&)
-{
-	clock_gettime(CLOCK_ID, &callbackTs);
-	callbackCalled = true;
-}
-
-void spinUntilCallbackCalled()
-{
-	callbackCalled = false;
-	while(!callbackCalled)
-	{
-		ros::spinOnce();
-	}
-}
