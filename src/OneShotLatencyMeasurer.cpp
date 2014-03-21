@@ -1,13 +1,15 @@
 #include "OneShotLatencyMeasurer.h"
 
 #include <time.h>
+#include <fstream>
+#include <iomanip>
 
 #include "TestParams.h"
 #include "Logger.h"
 
-OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, double timeoutSeconds, ros::NodeHandle* nodeHandle) :
+OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeoutNanoSeconds, ros::NodeHandle* nodeHandle) :
 		loopLength(loopLength),
-		timeoutSeconds(timeoutSeconds),
+		timeoutSeconds(((double)timeoutNanoSeconds)/SEC_TO_NANOSEC_MULTIPLIER),
 		timeoutNanoseconds(timeoutSeconds * SEC_TO_NANOSEC_MULTIPLIER),
 		minLatencyNs(0),
 		maxLatencyNs(0),
@@ -78,6 +80,60 @@ void OneShotLatencyMeasurer::printMeasurementResults()
 	ss.str("");
 	ss <<"MIN:  " << getMinLatencyMs() << "us \tAVG:  " << getAvgLatencyMs() << "us \tMAX:  " << getMaxLatencyMs() << "us";
 	Logger::INFO(ss.str().c_str());
+}
+
+void OneShotLatencyMeasurer::saveGPlotData(std::string filename)
+{
+	const int latHitArraySize = getMaxLatencyMs() + 1;
+	int hits[latHitArraySize];
+	for(int i = 0; i < latHitArraySize; i++)
+	{
+		hits[i] = 0;
+	}
+
+	for(int i = 0; i < loopLength; i++)
+	{
+		if(latenciesNs[i] >= 0)
+		{
+			hits[latenciesNs[i]/1000]++;
+		}
+	}
+
+	std::ofstream fs;
+	fs.open(filename.c_str());
+	fs << "# Latency Plot data for GnuPlot" << std::endl;
+	fs << "# Timeout: " << (int) timeoutNanoseconds/1000 << "us, LoopLength: " << loopLength << std::endl;
+	fs << "# MIN: " << getMinLatencyMs()  << "us \tAVG: " << getAvgLatencyMs() << "us \tMAX: " << getMaxLatencyMs() << "us" << std::endl;
+	for(int i = 0; i < latHitArraySize; i++)
+	{
+		fs << std::setfill('0') << std::setw(6) << i << " \t" << std::setfill('0') << std::setw(6) << hits[i] << std::endl;
+	}
+
+	if(getMinLatencyMs() < 0)
+	{
+		const int negHitArraySize = getMinLatencyMs()*(-1) + 1;
+		fs << "# negative Latencies following" << std::endl;
+		int negHits[negHitArraySize];
+		for(int i = 0; i < negHitArraySize; i++)
+		{
+			negHits[i] = 0;
+		}
+		for(int i = 0; i < loopLength; i++)
+		{
+			if(latenciesNs[i] < 0)
+			{
+				negHits[(latenciesNs[i] * (-1))/1000]++;
+			}
+		}
+
+		for(int i = 1; i < negHitArraySize; i++)
+		{
+			fs << "-" << std::setfill('0') << std::setw(6) << i << " \t" << std::setfill('0') << std::setw(6) << negHits[i] << std::endl;
+		}
+	}
+
+	fs << std::endl;
+	fs.close();
 }
 
 int OneShotLatencyMeasurer::getMaxLatencyMs()

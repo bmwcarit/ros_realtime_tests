@@ -10,6 +10,7 @@ protected:
 	static int maxLatencyMs[amountTimeouts];
 	static int avgLatencyMs[amountTimeouts];
 	static bool setupSucceeded;
+	static bool rtState;
 
 	static void SetUpTestCase();
 

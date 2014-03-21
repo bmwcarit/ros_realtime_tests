@@ -8,6 +8,7 @@ protected:
 	{
 		setupSucceeded = false;
 		ASSERT_EQ(switchToNormalPriority(), 0);
+		rtState = false;
 		RosOneShotTimerTestsFixture::SetUpTestCase();
 		setupSucceeded = true;
 	}
