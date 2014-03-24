@@ -2,7 +2,7 @@
 
 #include <sched.h>
 
-#define RT_PRIORITY 99
+#define RT_PRIORITY 95
 #define NORMAL_PRIORITY 0
 
 const int normalSchedulerPolicy = sched_getscheduler(0);

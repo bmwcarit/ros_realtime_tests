@@ -32,7 +32,7 @@ void OneShotLatencyMeasurer::measure()
 
 void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
 {
-	ros::Timer rosTimer = nodeHandle->createTimer(ros::Duration(timeoutSeconds), &timerCallback, true);
+	ros::Timer rosTimer = nodeHandle->createTimer(ros::Duration(0.01), timerCallback, true);
 	spinUntilCallbackCalled();
 	long latencyTempNs = 0;
 	struct timespec startTs;
@@ -160,7 +160,7 @@ void timerCallback(const ros::TimerEvent&)
 void spinUntilCallbackCalled()
 {
 	callbackCalled = false;
-	while(!callbackCalled)
+	while(!callbackCalled && ros::ok())
 	{
 		ros::spinOnce();
 	}
