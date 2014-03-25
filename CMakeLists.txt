@@ -37,7 +37,11 @@ include_directories(
 add_library(gtest_static STATIC ./gtest/src/gtest-all.cc)
 set_target_properties(gtest_static PROPERTIES COMPILEFLAGS "")
 
-AUX_SOURCE_DIRECTORY(./src src_files)
-add_executable(timer_tests ${src_files})
-target_link_libraries(timer_tests gtest_static pthread ${catkin_LIBRARIES})
+set(COMMON_SOURCES ./src/main.cpp ./src/Logger.cpp ./src/OneShotLatencyMeasurer.cpp ./src/PrioritySwitcher.cpp)
 
+add_executable(system_tests ${COMMON_SOURCES} ./src/SystemTests.cpp)
+target_link_libraries(system_tests gtest_static pthread ${catkin_LIBRARIES})
+add_executable(timer_tests_rt ${COMMON_SOURCES} ./src/RosOneShotTimerTestsFixture.cpp ./src/OneShotTimerTestsRT.cpp)
+target_link_libraries(timer_tests_rt gtest_static pthread ${catkin_LIBRARIES})
+add_executable(timer_tests ${COMMON_SOURCES} ./src/RosOneShotTimerTestsFixture.cpp ./src/OneShotTimerTests.cpp)
+target_link_libraries(timer_tests gtest_static pthread ${catkin_LIBRARIES})
