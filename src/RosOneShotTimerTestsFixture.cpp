@@ -31,8 +31,9 @@ void RosOneShotTimerTestsFixture::SetUpTestCase()
 		{
 			filenameSS << "-RT";
 		}
-		filenameSS << ".log";
-		measurer.saveGPlotData(filenameSS.str());
+		measurer.saveMeasuredLatencyGPlotData(filenameSS.str() + "-measured.log");
+		measurer.saveReportedLatencyGPlotData(filenameSS.str() + "-reported.log");
+		measurer.saveDiffGPlotData(filenameSS.str() + "-diff.log");
 	}
 }
 

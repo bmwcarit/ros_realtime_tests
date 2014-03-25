@@ -19,11 +19,11 @@ TEST(SystemTest, SystemClockPrecisionOfAtLeast1MicroSecond)
 
 TEST(SystemTest, CanSwitchToRealtimePriority)
 {
-	ASSERT_EQ(switchToRealtimePriority(), 0);
+	ASSERT_EQ(0, switchToRealtimePriority());
 }
 
 TEST(SystemTest, CanSwitchBackToNormalPriority)
 {
-	ASSERT_EQ(switchToNormalPriority(), 0);
+	ASSERT_EQ(0, switchToNormalPriority());
 }
 

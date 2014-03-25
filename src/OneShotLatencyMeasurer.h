@@ -11,30 +11,42 @@ public:
 	~OneShotLatencyMeasurer();
 	void measure();
 	void printMeasurementResults();
+	void saveDiffGPlotData(std::string filename);
+	void saveMeasuredLatencyGPlotData(std::string filename);
+	void saveReportedLatencyGPlotData(std::string filename);
+
+	//Getter methods
 	int getMaxLatencyMs();
 	int getMinLatencyMs();
 	int getAvgLatencyMs();
 	int getMaxReportedLatencyMs();
 	int getMinReportedLatencyMs();
 	int getAvgReportedLatencyMs();
-	void saveGPlotData(std::string filename);
+	int getMaxDifferenceMs();
+	int getMinDifferenceMs();
+	int getAvgDifferenceMs();
 private:
 	const int loopLength;
 	const double timeoutSeconds;
 	const long timeoutNanoseconds;
 	long minLatencyNs;
 	long maxLatencyNs;
-	long avgLatencyNs;
+	unsigned long long avgLatencyNs;
 	long minLatencyReportedNs;
 	long maxLatencyReportedNs;
-	long avgLatencyReportedNs;
+	unsigned long long avgLatencyReportedNs;
 	ros::NodeHandle* nodeHandle;
 	long* latenciesNs;
 	long* latenciesReportedNs;
+	long* differenceNs;
 	bool callbackCalled;
 	struct timespec callbackTs;
 	int loopCounter;
+	long maxDifference;
+	long minDifference;
+	unsigned long long avgDifference;
 
+	void saveGPlotData(std::string filename, long* plotValues, int maxValueMs, int minValueMs);
 	void measureOneshotTimerLatencies();
 	void calcMinMaxAndAvg();
 	void timerCallback(const ros::TimerEvent&);
