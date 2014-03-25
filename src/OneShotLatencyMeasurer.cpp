@@ -1,6 +1,5 @@
 #include "OneShotLatencyMeasurer.h"
 
-#include <time.h>
 #include <fstream>
 #include <iomanip>
 
@@ -14,15 +13,17 @@ OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeou
 		minLatencyNs(0),
 		maxLatencyNs(0),
 		avgLatencyNs(0),
+		minLatencyReportedNs(0),
+		maxLatencyReportedNs(0),
+		avgLatencyReportedNs(0),
 		nodeHandle(nodeHandle),
-		latenciesNs((long*) malloc(sizeof(long)*loopLength))
+		latenciesNs((long*) malloc(sizeof(long)*loopLength)),
+		latenciesReportedNs((long*) malloc(sizeof(long)*loopLength)),
+		callbackCalled(false),
+		callbackTs(),
+		loopCounter(0)
 {
 }
-
-bool callbackCalled = false;
-struct timespec callbackTs;
-void timerCallback(const ros::TimerEvent&);
-void spinUntilCallbackCalled();
 
 void OneShotLatencyMeasurer::measure()
 {
@@ -32,12 +33,12 @@ void OneShotLatencyMeasurer::measure()
 
 void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
 {
-	ros::Timer rosTimer = nodeHandle->createTimer(ros::Duration(0.01), timerCallback, true);
+	ros::Timer rosTimer = nodeHandle->createTimer(ros::Duration(0.01), &OneShotLatencyMeasurer::timerCallback, this, true);
 	spinUntilCallbackCalled();
 	long latencyTempNs = 0;
 	struct timespec startTs;
 
-	for(int i = 0; i < loopLength; i++)
+	for(loopCounter = 0; loopCounter < loopLength; loopCounter++)
 	{
 		rosTimer.setPeriod(ros::Duration(timeoutSeconds));
 		clock_gettime(CLOCK_ID, &startTs);
@@ -46,30 +47,41 @@ void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
 		latencyTempNs = (callbackTs.tv_sec - startTs.tv_sec) * SEC_TO_NANOSEC_MULTIPLIER;
 		latencyTempNs += callbackTs.tv_nsec - startTs.tv_nsec;
 		latencyTempNs -= timeoutNanoseconds;
-		latenciesNs[i] = latencyTempNs;
+		latenciesNs[loopCounter] = latencyTempNs;
 	}
 }
 
 void OneShotLatencyMeasurer::calcMinMaxAndAvg()
 {
-	long max = latenciesNs[0];
-	long min = latenciesNs[0];
+	maxLatencyNs = latenciesNs[0];
+	minLatencyNs = latenciesNs[0];
 	long double avg = 0.0;
+	maxLatencyReportedNs = latenciesReportedNs[0];
+	minLatencyReportedNs = latenciesReportedNs[0];
+	long double avgRep = 0.0;
 	for(int i = 0; i < loopLength; i++)
 	{
-		if(latenciesNs[i] > max)
+		if(latenciesNs[i] > maxLatencyNs)
 		{
-			max = latenciesNs[i];
+			maxLatencyNs = latenciesNs[i];
 		}
-		if(latenciesNs[i] < min)
+		if(latenciesNs[i] < minLatencyNs)
 		{
-			min = latenciesNs[i];
+			minLatencyNs = latenciesNs[i];
+		}
+		if(latenciesReportedNs[i] > maxLatencyReportedNs)
+		{
+			maxLatencyReportedNs = latenciesNs[i];
+		}
+		if(latenciesReportedNs[i] < minLatencyReportedNs)
+		{
+			minLatencyReportedNs = latenciesNs[i];
 		}
 		avg += (((long double)latenciesNs[i])/loopLength);
+		avgRep += (((long double)latenciesReportedNs[i])/loopLength);
 	}
-	maxLatencyNs = max;
-	minLatencyNs = min;
 	avgLatencyNs = avg;
+	avgLatencyReportedNs = avgRep;
 }
 
 void OneShotLatencyMeasurer::printMeasurementResults()
@@ -78,7 +90,10 @@ void OneShotLatencyMeasurer::printMeasurementResults()
 	ss << "Measurement results with a loop length of " << loopLength << " and a timeout of " << (int) (timeoutNanoseconds/1000) << " us:";
 	Logger::INFO(ss.str().c_str());
 	ss.str("");
-	ss <<"MIN:  " << getMinLatencyMs() << "us \tAVG:  " << getAvgLatencyMs() << "us \tMAX:  " << getMaxLatencyMs() << "us";
+	ss <<"Measured:\tMIN:  " << getMinLatencyMs() << "us \tAVG:  " << getAvgLatencyMs() << "us \tMAX:  " << getMaxLatencyMs() << "us";
+	Logger::INFO(ss.str().c_str());
+	ss.str("");
+	ss <<"Reported:\tMIN:  " << getMinReportedLatencyMs() << "us \tAVG:  " << getAvgReportedLatencyMs() << "us \tMAX:  " << getMaxReportedLatencyMs() << "us";
 	Logger::INFO(ss.str().c_str());
 }
 
@@ -151,13 +166,30 @@ int OneShotLatencyMeasurer::getAvgLatencyMs()
 	return avgLatencyNs/1000;
 }
 
-void timerCallback(const ros::TimerEvent&)
+int OneShotLatencyMeasurer::getMaxReportedLatencyMs()
+{
+	return maxLatencyReportedNs/1000;
+}
+
+int OneShotLatencyMeasurer::getMinReportedLatencyMs()
+{
+	return minLatencyReportedNs/1000;
+}
+
+int OneShotLatencyMeasurer::getAvgReportedLatencyMs()
+{
+	return avgLatencyReportedNs/1000;
+}
+
+void OneShotLatencyMeasurer::timerCallback(const ros::TimerEvent& te)
 {
 	clock_gettime(CLOCK_ID, &callbackTs);
+	latenciesReportedNs[loopCounter] = SEC_TO_NANOSEC_MULTIPLIER * (te.current_expected.sec - te.current_real.sec);
+	latenciesReportedNs[loopCounter] += (te.current_expected.nsec - te.current_real.nsec);
 	callbackCalled = true;
 }
 
-void spinUntilCallbackCalled()
+void OneShotLatencyMeasurer::spinUntilCallbackCalled()
 {
 	callbackCalled = false;
 	while(!callbackCalled && ros::ok())
