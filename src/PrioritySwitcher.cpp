@@ -1,23 +1,44 @@
+#include "PrioritySwitcher.h"
 #include "TestParams.h"
 
 #include <sched.h>
+#include <sys/resource.h>
 
 #define RT_PRIORITY 95
 #define NORMAL_PRIORITY 0
 
-const int normalSchedulerPolicy = sched_getscheduler(0);
+PrioritySwitcher::PrioritySwitcher() : pid((pid_t) 0), defaultPriority(-1)
+{
+	saveDefault();
+}
 
-int switchToRealtimePriority()
+PrioritySwitcher::PrioritySwitcher(int pid) : pid((pid_t) pid), defaultPriority(-1)
+{
+	saveDefault();
+}
+
+int PrioritySwitcher::switchToRealtimePriority()
 {
 	struct sched_param schedParam;
 	schedParam.sched_priority = RT_PRIORITY;
-	return sched_setscheduler(0, SCHED_FIFO, &schedParam);
+	return sched_setscheduler(pid, SCHED_FIFO, &schedParam);
 }
 
-int switchToNormalPriority()
+int PrioritySwitcher::switchToNormalPriority()
 {
 	struct sched_param schedParam;
 	schedParam.sched_priority = NORMAL_PRIORITY;
-	return sched_setscheduler(0, normalSchedulerPolicy, &schedParam);
+	int rc = sched_setscheduler(pid, defaultSchedulerPolicy, &schedParam);
+	rc += setpriority(PRIO_PROCESS, (int) pid, defaultPriority);
+}
+
+void PrioritySwitcher::saveDefault()
+{
+	defaultPriority = getpriority(PRIO_PROCESS, (int) pid);
+	defaultSchedulerPolicy = sched_getscheduler((int) pid);
+}
+
+PrioritySwitcher::~PrioritySwitcher()
+{
 }
 

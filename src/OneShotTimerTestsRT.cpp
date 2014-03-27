@@ -1,5 +1,5 @@
 #include "RosOneShotTimerTestsFixture.h"
-#include "PrioritySwitcher.h"
+#include "main.h"
 
 class RosOneShotTimerTestsRT : public RosOneShotTimerTestsFixture {
 protected:
@@ -7,7 +7,7 @@ protected:
 	static void SetUpTestCase()
 	{
 		setupSucceeded = false;
-		ASSERT_EQ(switchToRealtimePriority(), 0);
+		ASSERT_EQ(0, testnodePrioritySwitcher->switchToRealtimePriority());
 		rtState = true;
 		RosOneShotTimerTestsFixture::SetUpTestCase();
 		setupSucceeded = true;

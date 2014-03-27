@@ -1,6 +1,6 @@
 #include "Logger.h"
 #include "TestParams.h"
-#include "PrioritySwitcher.h"
+#include "main.h"
 
 #include <gtest/gtest.h>
 
@@ -19,11 +19,11 @@ TEST(SystemTest, SystemClockPrecisionOfAtLeast1MicroSecond)
 
 TEST(SystemTest, CanSwitchToRealtimePriority)
 {
-	ASSERT_EQ(0, switchToRealtimePriority());
+	ASSERT_EQ(0, testnodePrioritySwitcher->switchToRealtimePriority());
 }
 
 TEST(SystemTest, CanSwitchBackToNormalPriority)
 {
-	ASSERT_EQ(0, switchToNormalPriority());
+	ASSERT_EQ(0, testnodePrioritySwitcher->switchToNormalPriority());
 }
 

@@ -5,19 +5,20 @@
 #include <gtest/gtest.h>
 
 ros::NodeHandle* nodeHandle;
+PrioritySwitcher* testnodePrioritySwitcher;
+PrioritySwitcher* roscorePrioritySwitcher;
 int loops;
 
 int main(int argc, char* argv[])
-{
-	if(argc != 2)
+{	
+	testnodePrioritySwitcher = new PrioritySwitcher();
+	if(argc != 3)
 	{
-		Logger::ERROR("Usage: timer_tests <measurements_per_testcase>");
-		return 1;
+		Logger::ERROR("Usage: timer_tests <measurements_per_testcase> <roscore_pid>");
+		return -1;
 	}
 	loops = atoi(argv[1]);
-	std::stringstream ss;
-	ss << "Running " << loops << " measurements per testcase.";
-	Logger::INFO(ss.str());
+	roscorePrioritySwitcher = new PrioritySwitcher(atoi(argv[2]));
 	int x = 1;
 	char* y[1];
 	y[0] = argv[0];
