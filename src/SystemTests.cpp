@@ -17,13 +17,23 @@ TEST(SystemTest, SystemClockPrecisionOfAtLeast1MicroSecond)
 	ASSERT_LE(clockResolution.tv_nsec, 1000);
 }
 
-TEST(SystemTest, CanSwitchToRealtimePriority)
+TEST(SystemTest, CanSwitchTestnodeToRealtimePriority)
 {
 	ASSERT_EQ(0, testnodePrioritySwitcher->switchToRealtimePriority());
 }
 
-TEST(SystemTest, CanSwitchBackToNormalPriority)
+TEST(SystemTest, CanSwitchTestnodeBackToNormalPriority)
 {
 	ASSERT_EQ(0, testnodePrioritySwitcher->switchToNormalPriority());
+}
+
+TEST(SystemTest, CanSwitchRoscoreToRealtimePriority)
+{
+	ASSERT_EQ(0, roscorePrioritySwitcher->switchToRealtimePriority());
+}
+
+TEST(SystemTest, CanSwitchRoscoreBackToNormalPriority)
+{
+	ASSERT_EQ(0, roscorePrioritySwitcher->switchToNormalPriority());
 }
 
