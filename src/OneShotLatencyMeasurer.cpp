@@ -19,7 +19,7 @@ OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeou
 		callbackCalled(false),
 		callbackTs(),
 		loopCounter(0),
-		maxDifference(0), minDifference(0), avgDifference(0)
+		maxDifference(0), minDifference(0), avgDifferenceAbs(0)
 {
 }
 
@@ -59,7 +59,7 @@ void OneShotLatencyMeasurer::calcMinMaxAndAvg()
 	avgLatencyReportedNs = 0.0;
 	maxDifference = latenciesNs[0] - latenciesReportedNs[0];
 	minDifference = latenciesNs[0] - latenciesReportedNs[0];
-	avgDifference = 0.0;
+	avgDifferenceAbs = 0.0;
 	for(int i = 0; i < loopLength; i++)
 	{
 		if(latenciesNs[i] > maxLatencyNs)
@@ -89,11 +89,16 @@ void OneShotLatencyMeasurer::calcMinMaxAndAvg()
 		{
 			minDifference = differenceNs[i];
 		}
-		avgDifference += differenceNs[i];
+		if(differenceNs[i] < 0)
+		{
+			avgDifferenceAbs += (-1) * differenceNs[i];
+		} else {
+			avgDifferenceAbs += differenceNs[i];
+		}
 	}
 	avgLatencyNs /= loopLength;
 	avgLatencyReportedNs /= loopLength;
-	avgDifference /= loopLength;
+	avgDifferenceAbs /= loopLength;
 }
 
 void OneShotLatencyMeasurer::printMeasurementResults()
@@ -108,7 +113,7 @@ void OneShotLatencyMeasurer::printMeasurementResults()
 	ss <<"Reported:\tMIN:  " << getMinReportedLatencyMs() << "us \tAVG:  " << getAvgReportedLatencyMs() << "us \tMAX:  " << getMaxReportedLatencyMs() << "us";
 	Logger::INFO(ss.str().c_str());
 	ss.str("");
-	ss << "Difference (reported-measured):\tMIN: " << getMinDifferenceMs() << "us\tAVG_ABS: " << getAvgDifferenceMs() << "us\tMAX: " << getMaxDifferenceMs() << "us";
+	ss << "Difference (reported-measured):\tMIN: " << getMinDifferenceMs() << "us\tAVG_ABS: " << getAvgDifferenceAbsMs() << "us\tMAX: " << getMaxDifferenceMs() << "us";
 	Logger::INFO(ss.str().c_str());
 }
 
@@ -149,7 +154,7 @@ void OneShotLatencyMeasurer::saveGPlotData(std::string filename, long* plotValue
 	fs << "# Timeout: " << (int) timeoutNanoseconds/1000 << "us, LoopLength: " << loopLength << std::endl;
 	fs << "# Measured:\t MIN: " << getMinLatencyMs()  << "us \tAVG: " << getAvgLatencyMs() << "us \tMAX: " << getMaxLatencyMs() << "us" << std::endl;
 	fs << "# Reported:\t MIN: " << getMinReportedLatencyMs()  << "us \tAVG: " << getAvgReportedLatencyMs() << "us \tMAX: " << getMaxReportedLatencyMs() << "us" << std::endl;
-	fs << "# Difference:\t MIN: " << getMinDifferenceMs()  << "us \tAVG: " << getAvgDifferenceMs() << "us \tMAX: " << getMaxDifferenceMs() << "us" << std::endl;
+	fs << "# Difference:\t MIN: " << getMinDifferenceMs()  << "us \tAVG: " << getAvgDifferenceAbsMs() << "us \tMAX: " << getMaxDifferenceMs() << "us" << std::endl;
 	for(int i = 0; i < latHitArraySize; i++)
 	{
 		fs << std::setfill('0') << std::setw(6) << i << " \t" << std::setfill('0') << std::setw(6) << hits[i] << std::endl;
@@ -174,7 +179,7 @@ void OneShotLatencyMeasurer::saveGPlotData(std::string filename, long* plotValue
 
 		for(int i = 1; i < negHitArraySize; i++)
 		{
-			fs << "-" << std::setfill('0') << std::setw(6) << i << " \t" << std::setfill('0') << std::setw(6) << negHits[i] << std::endl;
+			fs << "#-" << std::setfill('0') << std::setw(6) << i << " \t" << std::setfill('0') << std::setw(6) << negHits[i] << std::endl;
 		}
 	}
 
@@ -222,9 +227,9 @@ int OneShotLatencyMeasurer::getMinDifferenceMs()
 	return minDifference/1000;
 }
 
-int OneShotLatencyMeasurer::getAvgDifferenceMs()
+int OneShotLatencyMeasurer::getAvgDifferenceAbsMs()
 {
-	return avgDifference/1000;
+	return avgDifferenceAbs/1000;
 }
 
 void OneShotLatencyMeasurer::timerCallback(const ros::TimerEvent& te)

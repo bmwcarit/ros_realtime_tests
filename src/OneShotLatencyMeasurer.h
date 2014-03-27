@@ -24,7 +24,7 @@ public:
 	int getAvgReportedLatencyMs();
 	int getMaxDifferenceMs();
 	int getMinDifferenceMs();
-	int getAvgDifferenceMs();
+	int getAvgDifferenceAbsMs();
 private:
 	const int loopLength;
 	const double timeoutSeconds;
@@ -44,7 +44,7 @@ private:
 	int loopCounter;
 	long maxDifference;
 	long minDifference;
-	unsigned long long avgDifference;
+	unsigned long long avgDifferenceAbs;
 
 	void saveGPlotData(std::string filename, long* plotValues, int maxValueMs, int minValueMs);
 	void measureOneshotTimerLatencies();
