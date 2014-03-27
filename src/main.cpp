@@ -8,17 +8,31 @@ ros::NodeHandle* nodeHandle;
 PrioritySwitcher* testnodePrioritySwitcher;
 PrioritySwitcher* roscorePrioritySwitcher;
 int loops;
+bool testnodeRT;
+bool roscoreRT;
+
+void printUsage()
+{
+	Logger::ERROR("Usage: timer_tests <measurements_per_testcase> <roscore_pid> <testnode_rt 0/1> <roscore_rt 0/1>");
+}
 
 int main(int argc, char* argv[])
 {	
 	testnodePrioritySwitcher = new PrioritySwitcher();
-	if(argc != 3)
+	if(argc != 5)
 	{
-		Logger::ERROR("Usage: timer_tests <measurements_per_testcase> <roscore_pid>");
+		printUsage();
 		return -1;
 	}
 	loops = atoi(argv[1]);
 	roscorePrioritySwitcher = new PrioritySwitcher(atoi(argv[2]));
+	testnodeRT = argv[3][0] == '1';
+	roscoreRT = argv[4][0] == '1';
+	if((argv[3][0] != '0' && argv[3][0] != '1') || (argv[4][0] != '0' && argv[4][0] != '1'))
+	{
+		printUsage();
+		return -1;
+	}
 	int x = 1;
 	char* y[1];
 	y[0] = argv[0];

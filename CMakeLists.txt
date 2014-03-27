@@ -39,9 +39,9 @@ set_target_properties(gtest_static PROPERTIES COMPILEFLAGS "")
 
 set(COMMON_SOURCES ./src/main.cpp ./src/Logger.cpp ./src/OneShotLatencyMeasurer.cpp ./src/PrioritySwitcher.cpp ./src/RosOneShotTimerTestsFixture.cpp)
 
+
 add_executable(system_tests ./src/main.cpp ./src/Logger.cpp ./src/PrioritySwitcher.cpp ./src/SystemTests.cpp)
 target_link_libraries(system_tests gtest_static pthread ${catkin_LIBRARIES})
-add_executable(timer_tests_rt ${COMMON_SOURCES} ./src/OneShotTimerTestsRT.cpp)
-target_link_libraries(timer_tests_rt gtest_static pthread ${catkin_LIBRARIES})
+
 add_executable(timer_tests ${COMMON_SOURCES} ./src/OneShotTimerTests.cpp)
 target_link_libraries(timer_tests gtest_static pthread ${catkin_LIBRARIES})

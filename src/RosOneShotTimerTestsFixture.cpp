@@ -6,15 +6,27 @@
 
 #include <math.h>
 
-int RosOneShotTimerTestsFixture::minLatencyMs[];
-int RosOneShotTimerTestsFixture::maxLatencyMs[];
-int RosOneShotTimerTestsFixture::avgLatencyMs[];
-bool RosOneShotTimerTestsFixture::setupSucceeded;
-bool RosOneShotTimerTestsFixture::rtState;
+int RosOneShotTimerTests::minLatencyMs[];
+int RosOneShotTimerTests::maxLatencyMs[];
+int RosOneShotTimerTests::avgLatencyMs[];
+bool RosOneShotTimerTests::setupSucceeded;
 
-void RosOneShotTimerTestsFixture::SetUpTestCase()
+void RosOneShotTimerTests::SetUpTestCase()
 {
 	Logger::INFO("Performing ROS Timer latency measurements...");
+	setupSucceeded = false;
+	if(testnodeRT)
+	{
+		ASSERT_EQ(0, testnodePrioritySwitcher->switchToRealtimePriority());
+	} else {
+		ASSERT_EQ(0, testnodePrioritySwitcher->switchToNormalPriority());
+	}
+	if(roscoreRT)
+	{
+		ASSERT_EQ(0, roscorePrioritySwitcher->switchToRealtimePriority());
+	} else {
+		ASSERT_EQ(0, roscorePrioritySwitcher->switchToNormalPriority());
+	}
 	for(int i = 0; i < amountTimeouts; i++)
 	{
 		int tmMultiplier = pow(10, i);
@@ -27,17 +39,22 @@ void RosOneShotTimerTestsFixture::SetUpTestCase()
 		measurer.printMeasurementResults();
 		std::stringstream filenameSS;
 		filenameSS << "GPlot_l" << loops << "_Tm" << (int) (timeout/1000);
-		if(rtState)
+		if(testnodeRT)
 		{
-			filenameSS << "-RT";
+			filenameSS << "-tnRT";
+		}		
+		if(roscoreRT)
+		{
+			filenameSS << "-rcRT";
 		}
 		measurer.saveMeasuredLatencyGPlotData(filenameSS.str() + "-measured.log");
 		measurer.saveReportedLatencyGPlotData(filenameSS.str() + "-reported.log");
 		measurer.saveDiffGPlotData(filenameSS.str() + "-diff.log");
 	}
+	setupSucceeded = true;
 }
 
-void RosOneShotTimerTestsFixture::SetUp()
+void RosOneShotTimerTests::SetUp()
 {
 	ASSERT_TRUE(setupSucceeded);
 }
