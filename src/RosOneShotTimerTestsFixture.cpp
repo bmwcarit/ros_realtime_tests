@@ -1,7 +1,6 @@
 #include "RosOneShotTimerTestsFixture.h"
 #include "Logger.h"
 #include "OneShotLatencyMeasurer.h"
-#include "TestParams.h"
 #include "main.h"
 
 #include <math.h>

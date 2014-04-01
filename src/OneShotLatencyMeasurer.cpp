@@ -3,8 +3,9 @@
 #include <fstream>
 #include <iomanip>
 
-#include "TestParams.h"
 #include "Logger.h"
+
+#define SEC_TO_NANOSEC_MULTIPLIER 1000000000
 
 OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeoutNanoSeconds, ros::NodeHandle* nodeHandle) :
 		loopLength(loopLength),
@@ -40,7 +41,7 @@ void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
 	for(loopCounter = 0; loopCounter < loopLength; loopCounter++)
 	{
 		rosTimer.setPeriod(ros::Duration(timeoutSeconds));
-		clock_gettime(CLOCK_ID, &startTs);
+		clock_gettime(clock_id, &startTs);
 		rosTimer.start();
 		spinUntilCallbackCalled();
 		latencyTempNs = ((callbackTs.tv_sec - startTs.tv_sec) * SEC_TO_NANOSEC_MULTIPLIER) + (callbackTs.tv_nsec - startTs.tv_nsec);
@@ -234,7 +235,7 @@ int OneShotLatencyMeasurer::getAvgDifferenceAbsMs()
 
 void OneShotLatencyMeasurer::timerCallback(const ros::TimerEvent& te)
 {
-	clock_gettime(CLOCK_ID, &callbackTs);
+	clock_gettime(clock_id, &callbackTs);
 	latenciesReportedNs[loopCounter] = ((te.current_real.sec - te.current_expected.sec) * SEC_TO_NANOSEC_MULTIPLIER) + (te.current_real.nsec - te.current_expected.nsec);
 	if(latenciesReportedNs[loopCounter] > 1000000000)
 	{

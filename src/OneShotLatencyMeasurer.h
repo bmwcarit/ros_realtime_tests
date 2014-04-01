@@ -14,6 +14,7 @@ public:
 	void saveDiffGPlotData(std::string filename);
 	void saveMeasuredLatencyGPlotData(std::string filename);
 	void saveReportedLatencyGPlotData(std::string filename);
+	const static int clock_id = CLOCK_MONOTONIC;
 
 	//Getter methods
 	int getMaxLatencyMs();

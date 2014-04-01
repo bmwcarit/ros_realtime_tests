@@ -1,5 +1,4 @@
 #include "PrioritySwitcher.h"
-#include "TestParams.h"
 
 #include <sched.h>
 #include <sys/resource.h>

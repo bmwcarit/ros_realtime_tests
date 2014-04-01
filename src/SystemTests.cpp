@@ -1,5 +1,5 @@
 #include "Logger.h"
-#include "TestParams.h"
+#include "OneShotLatencyMeasurer.h"
 #include "main.h"
 
 #include <gtest/gtest.h>
@@ -7,7 +7,7 @@
 TEST(SystemTest, SystemClockPrecisionOfAtLeast1MicroSecond)
 {
 	struct timespec clockResolution;
-	clock_getres(CLOCK_ID, &clockResolution);
+	clock_getres(OneShotLatencyMeasurer::clock_id, &clockResolution);
 	std::stringstream ss;
 	ss << "System reports time measurement with resolution of ";
 	ss << clockResolution.tv_nsec;
