@@ -10,6 +10,7 @@ extern ros::NodeHandle* nodeHandle;
 extern PrioritySwitcher* testnodePrioritySwitcher;
 extern PrioritySwitcher* roscorePrioritySwitcher;
 extern int loops;
+extern int timeout_us;
 extern bool testnodeRT;
 extern bool roscoreRT;
 

@@ -5,9 +5,9 @@
 
 #include <math.h>
 
-int RosOneShotTimerTests::minLatencyMs[];
-int RosOneShotTimerTests::maxLatencyMs[];
-int RosOneShotTimerTests::avgLatencyMs[];
+int RosOneShotTimerTests::minLatencyMs;
+int RosOneShotTimerTests::maxLatencyMs;
+int RosOneShotTimerTests::avgLatencyMs;
 bool RosOneShotTimerTests::setupSucceeded;
 
 void RosOneShotTimerTests::SetUpTestCase()
@@ -26,30 +26,25 @@ void RosOneShotTimerTests::SetUpTestCase()
 	} else {
 		ASSERT_EQ(0, roscorePrioritySwitcher->switchToNormalPriority());
 	}
-	for(int i = 0; i < amountTimeouts; i++)
+	OneShotLatencyMeasurer measurer(loops, timeout_us*1000, nodeHandle);
+	measurer.measure();
+	minLatencyMs = measurer.getMinLatencyMs();
+	maxLatencyMs = measurer.getMaxLatencyMs();
+	avgLatencyMs = measurer.getAvgLatencyMs();
+	measurer.printMeasurementResults();
+	std::stringstream filenameSS;
+	filenameSS << "GPlot_l" << loops << "_Tm" << (int) (timeout_us);
+	if(testnodeRT)
 	{
-		int tmMultiplier = pow(10, i);
-		const long timeout = 100000*tmMultiplier;
-		OneShotLatencyMeasurer measurer(loops, timeout, nodeHandle);
-		measurer.measure();
-		minLatencyMs[i] = measurer.getMinLatencyMs();
-		maxLatencyMs[i] = measurer.getMaxLatencyMs();
-		avgLatencyMs[i] = measurer.getAvgLatencyMs();
-		measurer.printMeasurementResults();
-		std::stringstream filenameSS;
-		filenameSS << "GPlot_l" << loops << "_Tm" << (int) (timeout/1000);
-		if(testnodeRT)
-		{
-			filenameSS << "-tnRT";
-		}		
-		if(roscoreRT)
-		{
-			filenameSS << "-rcRT";
-		}
-		measurer.saveMeasuredLatencyGPlotData(filenameSS.str() + "-measured.log");
-		measurer.saveReportedLatencyGPlotData(filenameSS.str() + "-reported.log");
-		measurer.saveDiffGPlotData(filenameSS.str() + "-diff.log");
+		filenameSS << "-tnRT";
+	}		
+	if(roscoreRT)
+	{
+		filenameSS << "-rcRT";
 	}
+	measurer.saveMeasuredLatencyGPlotData(filenameSS.str() + "-measured.log");
+	measurer.saveReportedLatencyGPlotData(filenameSS.str() + "-reported.log");
+	measurer.saveDiffGPlotData(filenameSS.str() + "-diff.log");
 	setupSucceeded = true;
 }
 

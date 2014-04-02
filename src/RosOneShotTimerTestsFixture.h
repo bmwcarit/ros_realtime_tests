@@ -5,10 +5,9 @@
 
 class RosOneShotTimerTests : public ::testing::Test {
 protected:
-	static const int amountTimeouts = 3;
-	static int minLatencyMs[amountTimeouts];
-	static int maxLatencyMs[amountTimeouts];
-	static int avgLatencyMs[amountTimeouts];
+	static int minLatencyMs;
+	static int maxLatencyMs;
+	static int avgLatencyMs;
 	static bool setupSucceeded;
 
 	static void SetUpTestCase();

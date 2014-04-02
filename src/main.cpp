@@ -8,27 +8,29 @@ ros::NodeHandle* nodeHandle;
 PrioritySwitcher* testnodePrioritySwitcher;
 PrioritySwitcher* roscorePrioritySwitcher;
 int loops;
+int timeout_us;
 bool testnodeRT;
 bool roscoreRT;
 
 void printUsage()
 {
-	Logger::ERROR("Usage: timer_tests <measurements_per_testcase> <roscore_pid> <testnode_rt 0/1> <roscore_rt 0/1>");
+	Logger::ERROR("Usage: timer_tests <measurements_per_testcase> <timeout_value_us> <roscore_pid> <testnode_rt 0/1> <roscore_rt 0/1>");
 }
 
 int main(int argc, char* argv[])
 {	
 	testnodePrioritySwitcher = new PrioritySwitcher();
-	if(argc != 5)
+	if(argc != 6)
 	{
 		printUsage();
 		return -1;
 	}
 	loops = atoi(argv[1]);
-	roscorePrioritySwitcher = new PrioritySwitcher(atoi(argv[2]));
-	testnodeRT = argv[3][0] == '1';
-	roscoreRT = argv[4][0] == '1';
-	if((argv[3][0] != '0' && argv[3][0] != '1') || (argv[4][0] != '0' && argv[4][0] != '1'))
+	timeout_us = atoi(argv[2]);
+	roscorePrioritySwitcher = new PrioritySwitcher(atoi(argv[3]));
+	testnodeRT = argv[4][0] == '1';
+	roscoreRT = argv[5][0] == '1';
+	if((argv[4][0] != '0' && argv[4][0] != '1') || (argv[5][0] != '0' && argv[5][0] != '1'))
 	{
 		printUsage();
 		return -1;
