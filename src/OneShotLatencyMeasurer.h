@@ -17,15 +17,15 @@ public:
 	const static int clock_id = CLOCK_MONOTONIC_RAW;
 
 	//Getter methods
-	int getMaxLatencyMs();
-	int getMinLatencyMs();
-	int getAvgLatencyMs();
-	int getMaxReportedLatencyMs();
-	int getMinReportedLatencyMs();
-	int getAvgReportedLatencyMs();
-	int getMaxDifferenceMs();
-	int getMinDifferenceMs();
-	int getAvgDifferenceAbsMs();
+	int getMaxLatencyUs();
+	int getMinLatencyUs();
+	int getAvgLatencyUs();
+	int getMaxReportedLatencyUs();
+	int getMinReportedLatencyUs();
+	int getAvgReportedLatencyUs();
+	int getMaxDifferenceUs();
+	int getMinDifferenceUs();
+	int getAvgDifferenceAbsUs();
 private:
 	const int loopLength;
 	const double timeoutSeconds;

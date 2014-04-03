@@ -16,9 +16,9 @@ void RosOneShotTimerTests::SetUpTestCase()
 	setupSucceeded = false;
 	OneShotLatencyMeasurer measurer(loops, timeout_us*1000, nodeHandle, testnodeRT);
 	measurer.measure();
-	minLatencyMs = measurer.getMinLatencyMs();
-	maxLatencyMs = measurer.getMaxLatencyMs();
-	avgLatencyMs = measurer.getAvgLatencyMs();
+	minLatencyMs = measurer.getMinLatencyUs();
+	maxLatencyMs = measurer.getMaxLatencyUs();
+	avgLatencyMs = measurer.getAvgLatencyUs();
 	measurer.printMeasurementResults();
 	std::stringstream filenameSS;
 	filenameSS << "GPlot_l" << loops << "_Tm" << (int) (timeout_us);
