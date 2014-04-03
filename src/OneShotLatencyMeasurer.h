@@ -7,7 +7,7 @@
 
 class OneShotLatencyMeasurer {
 public:
-	OneShotLatencyMeasurer(const int loopLength, long timeoutNanoSeconds, ros::NodeHandle* nodeHandle);
+	OneShotLatencyMeasurer(const int loopLength, long timeoutNanoSeconds, ros::NodeHandle* nodeHandle, bool lockMemory);
 	~OneShotLatencyMeasurer();
 	void measure();
 	void printMeasurementResults();
@@ -46,6 +46,7 @@ private:
 	long maxDifference;
 	long minDifference;
 	unsigned long long avgDifferenceAbs;
+	const bool lockMemory;
 
 	void saveGPlotData(std::string filename, long* plotValues, int maxValueMs, int minValueMs);
 	void measureOneshotTimerLatencies();

@@ -26,7 +26,7 @@ void RosOneShotTimerTests::SetUpTestCase()
 	} else {
 		ASSERT_EQ(0, roscorePrioritySwitcher->switchToNormalPriority());
 	}
-	OneShotLatencyMeasurer measurer(loops, timeout_us*1000, nodeHandle);
+	OneShotLatencyMeasurer measurer(loops, timeout_us*1000, nodeHandle, testnodeRT);
 	measurer.measure();
 	minLatencyMs = measurer.getMinLatencyMs();
 	maxLatencyMs = measurer.getMaxLatencyMs();

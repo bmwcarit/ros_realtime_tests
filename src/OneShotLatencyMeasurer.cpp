@@ -2,12 +2,14 @@
 
 #include <fstream>
 #include <iomanip>
+#include <stdlib.h>
+#include <sys/mman.h>
 
 #include "Logger.h"
 
 #define SEC_TO_NANOSEC_MULTIPLIER 1000000000
 
-OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeoutNanoSeconds, ros::NodeHandle* nodeHandle) :
+OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeoutNanoSeconds, ros::NodeHandle* nodeHandle, bool lockMemory) :
 		loopLength(loopLength),
 		timeoutSeconds(((double)timeoutNanoSeconds)/SEC_TO_NANOSEC_MULTIPLIER),
 		timeoutNanoseconds(timeoutSeconds * SEC_TO_NANOSEC_MULTIPLIER),
@@ -20,8 +22,15 @@ OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeou
 		callbackCalled(false),
 		callbackTs(),
 		loopCounter(0),
-		maxDifference(0), minDifference(0), avgDifferenceAbs(0)
+		maxDifference(0), minDifference(0), avgDifferenceAbs(0),
+		lockMemory(lockMemory)
 {
+	for(int i = 0; i < loopLength; i++)
+	{
+		latenciesNs[i] = 0;
+		latenciesReportedNs[i] = 0;
+		differenceNs[i] = 0;
+	}
 }
 
 void OneShotLatencyMeasurer::measure()
@@ -32,6 +41,14 @@ void OneShotLatencyMeasurer::measure()
 
 void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
 {
+	if(lockMemory)
+	{
+		if(mlockall(MCL_CURRENT|MCL_FUTURE) != 0)
+		{
+			Logger::ERROR("Could'nt lock memory! Aborting...");
+			exit(1);
+		}
+	}
 	loopCounter = 0;
 	ros::Timer rosTimer = nodeHandle->createTimer(ros::Duration(0.01), &OneShotLatencyMeasurer::timerCallback, this, true);
 	spinUntilCallbackCalled();
@@ -47,6 +64,10 @@ void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
 		latencyTempNs = ((callbackTs.tv_sec - startTs.tv_sec) * SEC_TO_NANOSEC_MULTIPLIER) + (callbackTs.tv_nsec - startTs.tv_nsec);
 		latencyTempNs -= timeoutNanoseconds;
 		latenciesNs[loopCounter] = latencyTempNs;
+	}
+	if(lockMemory)
+	{
+		munlockall();
 	}
 }
 
