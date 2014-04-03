@@ -41,6 +41,24 @@ bool setSchedulingPolicy(std::string arg)
 	return false;
 }
 
+bool setProcessPriorities()
+{
+	int rc = 0;
+	if(testnodeRT)
+	{
+		rc += testnodePrioritySwitcher->switchToRealtimePriority();
+	} else {
+		rc += testnodePrioritySwitcher->switchToNormalPriority();
+	}
+	if(roscoreRT)
+	{
+		rc += roscorePrioritySwitcher->switchToRealtimePriority();
+	} else {
+		rc += roscorePrioritySwitcher->switchToNormalPriority();
+	}
+	return rc == 0;
+}
+
 int main(int argc, char* argv[])
 {	
 	if(argc != 7)
@@ -62,6 +80,11 @@ int main(int argc, char* argv[])
 	int x = 1;
 	char* y[1];
 	y[0] = argv[0];
+	if(!setProcessPriorities())
+	{
+		Logger::ERROR("Couldn't set priorities appropriately");
+		return 1;
+	}
 	ros::init(x, y, "Timer_tests");
 	nodeHandle = new ros::NodeHandle;
 	testing::InitGoogleTest(&x, y);

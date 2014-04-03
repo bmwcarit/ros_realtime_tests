@@ -14,18 +14,6 @@ void RosOneShotTimerTests::SetUpTestCase()
 {
 	Logger::INFO("Performing ROS Timer latency measurements...");
 	setupSucceeded = false;
-	if(testnodeRT)
-	{
-		ASSERT_EQ(0, testnodePrioritySwitcher->switchToRealtimePriority());
-	} else {
-		ASSERT_EQ(0, testnodePrioritySwitcher->switchToNormalPriority());
-	}
-	if(roscoreRT)
-	{
-		ASSERT_EQ(0, roscorePrioritySwitcher->switchToRealtimePriority());
-	} else {
-		ASSERT_EQ(0, roscorePrioritySwitcher->switchToNormalPriority());
-	}
 	OneShotLatencyMeasurer measurer(loops, timeout_us*1000, nodeHandle, testnodeRT);
 	measurer.measure();
 	minLatencyMs = measurer.getMinLatencyMs();
