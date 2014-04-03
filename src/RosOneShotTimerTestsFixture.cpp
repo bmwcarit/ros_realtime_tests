@@ -31,10 +31,6 @@ void RosOneShotTimerTests::SetUpTestCase()
 		} else {
 			filenameSS << "RR";
 		}
-	}		
-	if(roscoreRT)
-	{
-		filenameSS << "-rcRT";
 	}
 	measurer.saveMeasuredLatencyGPlotData(filenameSS.str() + "-measured.log");
 	measurer.saveReportedLatencyGPlotData(filenameSS.str() + "-reported.log");

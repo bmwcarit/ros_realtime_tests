@@ -27,13 +27,3 @@ TEST(SystemTest, CanSwitchTestnodeBackToNormalPriority)
 	ASSERT_EQ(0, testnodePrioritySwitcher->switchToNormalPriority());
 }
 
-TEST(SystemTest, CanSwitchRoscoreToRealtimePriority)
-{
-	ASSERT_EQ(0, roscorePrioritySwitcher->switchToRealtimePriority());
-}
-
-TEST(SystemTest, CanSwitchRoscoreBackToNormalPriority)
-{
-	ASSERT_EQ(0, roscorePrioritySwitcher->switchToNormalPriority());
-}
-

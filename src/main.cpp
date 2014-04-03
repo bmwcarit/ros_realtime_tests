@@ -6,16 +6,14 @@
 
 ros::NodeHandle* nodeHandle;
 PrioritySwitcher* testnodePrioritySwitcher;
-PrioritySwitcher* roscorePrioritySwitcher;
 int loops;
 int timeout_us;
 bool testnodeRT;
-bool roscoreRT;
 bool fifoScheduling;
 
 void printUsage()
 {
-	Logger::ERROR("Usage: timer_tests <amount_measurements> <timeout_value_us> <roscore_pid> <testnode_rt 0/1> <roscore_rt 0/1> <rt_sched_policy 'FIFO'/'RR'>");
+	Logger::ERROR("Usage: timer_tests <amount_measurements> <timeout_value_us> <testnode_rt 0/1> [rt_sched_policy 'FIFO'/'RR']");
 }
 
 bool setSchedulingPolicy(std::string arg)
@@ -41,7 +39,7 @@ bool setSchedulingPolicy(std::string arg)
 	return false;
 }
 
-bool setProcessPriorities()
+bool setProcessPriority()
 {
 	int rc = 0;
 	if(testnodeRT)
@@ -50,39 +48,51 @@ bool setProcessPriorities()
 	} else {
 		rc += testnodePrioritySwitcher->switchToNormalPriority();
 	}
-	if(roscoreRT)
-	{
-		rc += roscorePrioritySwitcher->switchToRealtimePriority();
-	} else {
-		rc += roscorePrioritySwitcher->switchToNormalPriority();
-	}
 	return rc == 0;
+}
+
+bool parseArgs(int argc, char* argv[])
+{
+	if(argc < 4)
+	{
+		return false;
+	}
+	loops = atoi(argv[1]);
+	timeout_us = atoi(argv[2]);
+	testnodeRT = argv[3][0] == '1';
+	if(argv[3][0] != '0' && argv[3][0] != '1')
+	{
+		return false;
+	}
+	if(testnodeRT)
+	{
+		if(argc != 5)
+		{
+			Logger::ERROR("RT Scheduling policy not provided.");
+			return false;
+		}
+		if(!setSchedulingPolicy(argv[4]))
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 int main(int argc, char* argv[])
 {	
-	if(argc != 7)
+	if(!parseArgs(argc, argv))
 	{
 		printUsage();
-		return -1;
-	}
-	loops = atoi(argv[1]);
-	timeout_us = atoi(argv[2]);
-	testnodeRT = argv[4][0] == '1';
-	roscoreRT = argv[5][0] == '1';
-	if((argv[4][0] != '0' && argv[4][0] != '1') || (argv[5][0] != '0' && argv[5][0] != '1') || !setSchedulingPolicy(argv[6]))
-	{
-		printUsage();
-		return -1;
+		return 1;
 	}
 	testnodePrioritySwitcher = new PrioritySwitcher(0, fifoScheduling);
-	roscorePrioritySwitcher = new PrioritySwitcher(atoi(argv[3]), fifoScheduling);
 	int x = 1;
 	char* y[1];
 	y[0] = argv[0];
-	if(!setProcessPriorities())
+	if(!setProcessPriority())
 	{
-		Logger::ERROR("Couldn't set priorities appropriately");
+		Logger::ERROR("Couldn't set priority appropriately, maybe not running as root?");
 		return 1;
 	}
 	ros::init(x, y, "Timer_tests");
