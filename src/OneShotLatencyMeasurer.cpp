@@ -153,9 +153,9 @@ void OneShotLatencyMeasurer::saveDiffGPlotData(std::string filename)
 	saveGPlotData(filename, differenceNs, getMaxDifferenceUs(), getMinDifferenceUs());
 }
 
-void OneShotLatencyMeasurer::saveGPlotData(std::string filename, long* plotValues, int maxValueMs, int minValueMs)
+void OneShotLatencyMeasurer::saveGPlotData(std::string filename, long* plotValues, int maxValueUs, int minValueUs)
 {
-	const int latHitArraySize = maxValueMs + 1;
+	const int latHitArraySize = maxValueUs + 1;
 	int hits[latHitArraySize];
 	for(int i = 0; i < latHitArraySize; i++)
 	{
@@ -177,14 +177,24 @@ void OneShotLatencyMeasurer::saveGPlotData(std::string filename, long* plotValue
 	fs << "# Measured:\t MIN: " << getMinLatencyUs()  << "us \tAVG: " << getAvgLatencyUs() << "us \tMAX: " << getMaxLatencyUs() << "us" << std::endl;
 	fs << "# Reported:\t MIN: " << getMinReportedLatencyUs()  << "us \tAVG: " << getAvgReportedLatencyUs() << "us \tMAX: " << getMaxReportedLatencyUs() << "us" << std::endl;
 	fs << "# Difference:\t MIN: " << getMinDifferenceUs()  << "us \tAVG: " << getAvgDifferenceAbsUs() << "us \tMAX: " << getMaxDifferenceUs() << "us" << std::endl;
+	if(maxValueUs > 100000)
+	{
+		fs << "# Peak values of over 100ms in loops: | ";
+		for(int i = 0; i < loopLength; i++)
+		{
+			if(plotValues[i] > 100000000)
+			fs << i << " | ";
+		}
+		fs << std::endl;
+	}
 	for(int i = 0; i < latHitArraySize; i++)
 	{
 		fs << std::setfill('0') << std::setw(6) << i << " \t" << std::setfill('0') << std::setw(6) << hits[i] << std::endl;
 	}
 
-	if(minValueMs < 0)
+	if(minValueUs < 0)
 	{
-		const int negHitArraySize = minValueMs*(-1) + 1;
+		const int negHitArraySize = minValueUs*(-1) + 1;
 		fs << "# negative Values following" << std::endl;
 		int negHits[negHitArraySize];
 		for(int i = 0; i < negHitArraySize; i++)
