@@ -6,12 +6,12 @@
 #define RT_PRIORITY 95
 #define NORMAL_PRIORITY 0
 
-PrioritySwitcher::PrioritySwitcher() : pid((pid_t) 0), defaultPriority(-1)
+PrioritySwitcher::PrioritySwitcher(bool useFifoScheduling) : pid((pid_t) 0), defaultPriority(-1), fifoScheduling(useFifoScheduling)
 {
 	saveDefault();
 }
 
-PrioritySwitcher::PrioritySwitcher(int pid) : pid((pid_t) pid), defaultPriority(-1)
+PrioritySwitcher::PrioritySwitcher(int pid, bool useFifoScheduling) : pid((pid_t) pid), defaultPriority(-1), fifoScheduling(useFifoScheduling)
 {
 	saveDefault();
 }
@@ -20,7 +20,8 @@ int PrioritySwitcher::switchToRealtimePriority()
 {
 	struct sched_param schedParam;
 	schedParam.sched_priority = RT_PRIORITY;
-	return sched_setscheduler(pid, SCHED_FIFO, &schedParam);
+	int sched_policy = fifoScheduling ? SCHED_FIFO : SCHED_RR;
+	return sched_setscheduler(pid, sched_policy, &schedParam);
 }
 
 int PrioritySwitcher::switchToNormalPriority()

@@ -6,8 +6,8 @@
 
 class PrioritySwitcher {
 public:
-	PrioritySwitcher();
-	PrioritySwitcher(int pid);
+	PrioritySwitcher(bool useFifoScheduling);
+	PrioritySwitcher(int pid, bool useFifoScheduling);
 	~PrioritySwitcher();
 
 	//If no argument provided the priority of the current process is modified
@@ -17,6 +17,7 @@ private:
 	pid_t pid;
 	pid_t defaultPriority;
 	int defaultSchedulerPolicy;
+	bool fifoScheduling;
 
 	void saveDefault();
 };

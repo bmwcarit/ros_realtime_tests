@@ -13,6 +13,7 @@ extern int loops;
 extern int timeout_us;
 extern bool testnodeRT;
 extern bool roscoreRT;
+extern bool fifoScheduling;
 
 #endif //MAIN_H_
 

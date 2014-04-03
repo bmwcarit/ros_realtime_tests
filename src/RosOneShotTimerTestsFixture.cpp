@@ -37,6 +37,12 @@ void RosOneShotTimerTests::SetUpTestCase()
 	if(testnodeRT)
 	{
 		filenameSS << "-tnRT";
+		if(fifoScheduling)
+		{
+			filenameSS << "FIFO";
+		} else {
+			filenameSS << "RR";
+		}
 	}		
 	if(roscoreRT)
 	{
