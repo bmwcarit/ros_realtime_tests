@@ -29,7 +29,7 @@ void RosOneShotTimerTests::SetUpTestCase()
 	avgLatencyMs = measurer.getAvgLatencyUs();
 	measurer.printMeasurementResults();
 	std::stringstream filenameSS;
-	filenameSS << "GPlot_l" << loops << "_Tm" << (int) (timeout_us);
+	filenameSS << "Gnuplot_l" << loops << "_Tm" << (int) (timeout_us);
 	if(testnodeRT)
 	{
 		filenameSS << "-tnRT";
@@ -40,9 +40,9 @@ void RosOneShotTimerTests::SetUpTestCase()
 			filenameSS << "RR";
 		}
 	}
-	measurer.saveMeasuredLatencyGPlotData(filenameSS.str() + "-measured.log");
-	measurer.saveReportedLatencyGPlotData(filenameSS.str() + "-reported.log");
-	measurer.saveDiffGPlotData(filenameSS.str() + "-diff.log");
+	measurer.saveMeasuredLatencyGnuplotData(filenameSS.str() + "-measured.log");
+	measurer.saveReportedLatencyGnuplotData(filenameSS.str() + "-reported.log");
+	measurer.saveDiffGnuplotData(filenameSS.str() + "-diff.log");
 	setupSucceeded = true;
 }
 

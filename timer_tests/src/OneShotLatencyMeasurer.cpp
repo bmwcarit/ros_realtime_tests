@@ -147,21 +147,21 @@ void OneShotLatencyMeasurer::printMeasurementResults()
 	Logger::INFO(ss.str().c_str());
 }
 
-void OneShotLatencyMeasurer::saveMeasuredLatencyGPlotData(std::string filename)
+void OneShotLatencyMeasurer::saveMeasuredLatencyGnuplotData(std::string filename)
 {
-	saveGPlotData(filename, latenciesNs, getMaxLatencyUs(), getMinLatencyUs());
+	saveGnuplotData(filename, latenciesNs, getMaxLatencyUs(), getMinLatencyUs());
 }
 
-void OneShotLatencyMeasurer::saveReportedLatencyGPlotData(std::string filename)
+void OneShotLatencyMeasurer::saveReportedLatencyGnuplotData(std::string filename)
 {
-	saveGPlotData(filename, latenciesReportedNs, getMaxReportedLatencyUs(), getMinReportedLatencyUs());
+	saveGnuplotData(filename, latenciesReportedNs, getMaxReportedLatencyUs(), getMinReportedLatencyUs());
 }
-void OneShotLatencyMeasurer::saveDiffGPlotData(std::string filename)
+void OneShotLatencyMeasurer::saveDiffGnuplotData(std::string filename)
 {
-	saveGPlotData(filename, differenceNs, getMaxDifferenceUs(), getMinDifferenceUs());
+	saveGnuplotData(filename, differenceNs, getMaxDifferenceUs(), getMinDifferenceUs());
 }
 
-void OneShotLatencyMeasurer::saveGPlotData(std::string filename, long* plotValues, int maxValueUs, int minValueUs)
+void OneShotLatencyMeasurer::saveGnuplotData(std::string filename, long* plotValues, int maxValueUs, int minValueUs)
 {
 	const int latHitArraySize = maxValueUs + 1;
 	int hits[latHitArraySize];
@@ -180,7 +180,7 @@ void OneShotLatencyMeasurer::saveGPlotData(std::string filename, long* plotValue
 
 	std::ofstream fs;
 	fs.open(filename.c_str());
-	fs << "# Plot data for GnuPlot" << std::endl;
+	fs << "# Plot data for gnuplot" << std::endl;
 	fs << "# Timeout: " << (int) timeoutNanoseconds/1000 << "us, LoopLength: " << loopLength << std::endl;
 	fs << "# Measured:\t MIN: " << getMinLatencyUs()  << "us \tAVG: " << getAvgLatencyUs() << "us \tMAX: " << getMaxLatencyUs() << "us" << std::endl;
 	fs << "# Reported:\t MIN: " << getMinReportedLatencyUs()  << "us \tAVG: " << getAvgReportedLatencyUs() << "us \tMAX: " << getMaxReportedLatencyUs() << "us" << std::endl;

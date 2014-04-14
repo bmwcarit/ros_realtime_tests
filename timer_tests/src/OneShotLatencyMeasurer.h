@@ -19,9 +19,9 @@ public:
 	~OneShotLatencyMeasurer();
 	void measure();
 	void printMeasurementResults();
-	void saveDiffGPlotData(std::string filename);
-	void saveMeasuredLatencyGPlotData(std::string filename);
-	void saveReportedLatencyGPlotData(std::string filename);
+	void saveDiffGnuplotData(std::string filename);
+	void saveMeasuredLatencyGnuplotData(std::string filename);
+	void saveReportedLatencyGnuplotData(std::string filename);
 	const static int clock_id = CLOCK_MONOTONIC_RAW;
 
 	//Getter methods
@@ -56,7 +56,7 @@ private:
 	unsigned long long avgDifferenceAbs;
 	const bool lockMemory;
 
-	void saveGPlotData(std::string filename, long* plotValues, int maxValueMs, int minValueMs);
+	void saveGnuplotData(std::string filename, long* plotValues, int maxValueMs, int minValueMs);
 	void measureOneshotTimerLatencies();
 	void calcMinMaxAndAvg();
 	void timerCallback(const ros::TimerEvent&);
