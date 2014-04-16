@@ -6,12 +6,11 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
-#include "RosOneShotTimerTestsFixture.h"
-#include "Logger.h"
-#include "OneShotLatencyMeasurer.h"
 #include "main.h"
-
+#include "OneShotLatencyMeasurer.h"
+#include "RosOneShotTimerTestsFixture.h"
 #include <math.h>
+#include <rt_tests_support/Logger.h>
 
 int RosOneShotTimerTests::minLatencyMs;
 int RosOneShotTimerTests::maxLatencyMs;

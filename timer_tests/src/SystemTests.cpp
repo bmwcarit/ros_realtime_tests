@@ -6,11 +6,10 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
-#include "Logger.h"
-#include "OneShotLatencyMeasurer.h"
 #include "main.h"
-
+#include "OneShotLatencyMeasurer.h"
 #include <gtest/gtest.h>
+#include <rt_tests_support/Logger.h>
 
 TEST(SystemTest, SystemClockPrecisionOfAtLeast1MicroSecond)
 {

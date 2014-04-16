@@ -12,8 +12,7 @@
 #include <iomanip>
 #include <stdlib.h>
 #include <sys/mman.h>
-
-#include "Logger.h"
+#include <rt_tests_support/Logger.h>
 
 #define SEC_TO_NANOSEC_MULTIPLIER 1000000000
 

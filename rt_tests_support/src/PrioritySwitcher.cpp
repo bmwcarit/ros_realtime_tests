@@ -6,10 +6,9 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
-#include "PrioritySwitcher.h"
-
 #include <sched.h>
 #include <sys/resource.h>
+#include <rt_tests_support/PrioritySwitcher.h>
 
 #define RT_PRIORITY 95
 #define NORMAL_PRIORITY 0

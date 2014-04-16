@@ -5,17 +5,16 @@ find_package(catkin REQUIRED COMPONENTS roscpp)
 
 catkin_package()
 
-include_directories(${catkin_INCLUDE_DIRS} ../gtest/include ../gtest)
+include_directories(${catkin_INCLUDE_DIRS} ../gtest/include ../gtest ../rt_tests_support/include)
 
 add_library(gtest_static STATIC ../gtest/src/gtest-all.cc)
+add_library(rt_tests_support STATIC ../rt_tests_support/src/Logger.cpp ../rt_tests_support/src/PrioritySwitcher.cpp)
 
-set(COMMON_SOURCES ./src/main.cpp ./src/Logger.cpp ./src/OneShotLatencyMeasurer.cpp ./src/PrioritySwitcher.cpp ./src/RosOneShotTimerTestsFixture.cpp)
+add_executable(system_tests ./src/main.cpp ./src/SystemTests.cpp)
+target_link_libraries(system_tests gtest_static rt_tests_support ${catkin_LIBRARIES})
 
-add_executable(system_tests ./src/main.cpp ./src/Logger.cpp ./src/PrioritySwitcher.cpp ./src/SystemTests.cpp)
-target_link_libraries(system_tests gtest_static pthread ${catkin_LIBRARIES})
-
-add_executable(timer_tests ${COMMON_SOURCES} ./src/OneShotTimerTests.cpp)
-target_link_libraries(timer_tests gtest_static pthread ${catkin_LIBRARIES})
+add_executable(timer_tests ./src/main.cpp ./src/OneShotLatencyMeasurer.cpp ./src/RosOneShotTimerTestsFixture.cpp ./src/OneShotTimerTests.cpp)
+target_link_libraries(timer_tests gtest_static rt_tests_support ${catkin_LIBRARIES})
 
 install(TARGETS system_tests timer_tests
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

@@ -6,9 +6,8 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
-#include "Logger.h"
-
 #include <iostream>
+#include <rt_tests_support/Logger.h>
 
 void Logger::INFO(std::string msg)
 {

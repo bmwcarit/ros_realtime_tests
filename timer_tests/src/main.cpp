@@ -7,10 +7,9 @@
 **/
 
 #include "main.h"
-#include "Logger.h"
-
 #include "ros/ros.h"
 #include <gtest/gtest.h>
+#include <rt_tests_support/Logger.h>
 
 ros::NodeHandle* nodeHandle;
 PrioritySwitcher* testnodePrioritySwitcher;

@@ -12,7 +12,7 @@
 #define S_TO_NS_MULTIPLIER 1000000000
 
 #include "ros/ros.h"
-#include "PrioritySwitcher.h"
+#include <rt_tests_support/PrioritySwitcher.h>
 
 extern ros::NodeHandle* nodeHandle;
 extern PrioritySwitcher* testnodePrioritySwitcher;
