@@ -5,9 +5,9 @@ find_package(catkin REQUIRED COMPONENTS roscpp)
 
 catkin_package()
 
-include_directories(${catkin_INCLUDE_DIRS} ./gtest/include ./gtest)
+include_directories(${catkin_INCLUDE_DIRS} ../gtest/include ../gtest)
 
-add_library(gtest_static STATIC ./gtest/src/gtest-all.cc)
+add_library(gtest_static STATIC ../gtest/src/gtest-all.cc)
 
 set(COMMON_SOURCES ./src/main.cpp ./src/Logger.cpp ./src/OneShotLatencyMeasurer.cpp ./src/PrioritySwitcher.cpp ./src/RosOneShotTimerTestsFixture.cpp)
 
