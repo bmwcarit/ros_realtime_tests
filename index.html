@@ -1,0 +1,846 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta name="generator" content="http://www.nongnu.org/elyxer/"/>
+<meta name="create-date" content="2014-04-24"/>
+<link rel="stylesheet" href="http://elyxer.nongnu.org/lyx.css" type="text/css" media="all"/>
+<title>ROS-Timer Latency Tests</title>
+</head>
+<body>
+<div id="globalWrapper">
+<h1 class="title">
+ROS-Timer Latency Tests
+</h1>
+<h2 class="author">
+Jonas Sticha
+</h2>
+<h1 class="Section">
+<a class="toc" name="toc-Section-1">1</a> Abstract
+</h1>
+<div class="Unindented">
+As modern real-time systems become more and more complex, their software architectures include a middleware to connect the systems' software components. This middleware must fulfill hard real-time requirements. To validate whether <span class="versalitas">ROS</span> can meet such requirements, a series of tests have to be conducted.
+</div>
+<div class="Indented">
+As a first step, the latencies of the <span class="versalitas">ROS</span>-Timer function have been measured under different circumstances. The results of the first tests, as well as the exact Hardware/Software modules of the test system, are depicted in this paper, allowing independent validation of our test results. Also, everyone is welcome to use the test suite to validate the real-time capabilities of any other Software/Hardware system.
+</div>
+<h1 class="Section">
+<a class="toc" name="toc-Section-2">2</a> Hardware
+</h1>
+<div class="Unindented">
+The hardware used to run the tests:
+</div>
+<ul>
+<li>
+Platform: PandaBoard ES OMAP4460
+</li>
+<li>
+Data carrier: SanDisk Extreme Pro SDHC UHS-I card 8GB
+</li>
+<li>
+Power supply: 5.0V, 4.0A
+</li>
+
+</ul>
+<h1 class="Section">
+<a class="toc" name="toc-Section-3">3</a> Software
+</h1>
+<h2 class="Subsection">
+<a class="toc" name="toc-Subsection-3.1">3.1</a> Operating System
+</h2>
+<div class="Unindented">
+The tests were run on a normal Linux system and on a Linux system with full kernel preemption support. The build process is explained in the following sections. The exact software-versions I used are specified in <i><a class="Reference" href="#tab:SoftwareVersionsTable">Table 1↓</a>. </i>My build system for the whole build as described in <a class="Reference" href="#sub:Linux-3.4.0">Section 3.1.1↓</a> was a server with <i>Fedora 20</i>, the real-time Linux kernel (<a class="Reference" href="#sub:Linux-3.4.0-rt17-PREEMPT">Section 3.1.2↓</a>) however, was built on a notebook, running with <i>Ubuntu 13.04</i>.
+</div>
+<div class="Indented">
+<span class="versalitas">Note<i></i></span>: We expect that the build machine has no impact on the test results.
+</div>
+<h3 class="Subsubsection">
+<a class="toc" name="toc-Subsubsection-3.1.1">3.1.1</a> Linux 3.4.0<a class="Label" name="sub:Linux-3.4.0"> </a>
+</h3>
+<div class="Unindented">
+To build a Linux image with the 3.4.0 Linux kernel and all the necessary software, first follow the instructions on the <span class="versalitas">ros</span>-Wiki page &ldquo;Installation OpenEmbedded/Yocto&rdquo;<span class="FootOuter"><span class="SupFootMarker"> [A] </span><span class="HoverFoot"><span class="SupFootMarker"> [A] </span><span class="versalitas">ros</span>-Wiki: <a class="URL" href="http://wiki.ros.org/hydro/Installation/OpenEmbedded">http://wiki.ros.org/hydro/Installation/OpenEmbedded</a></span></span>. However, instead of cloning the <i>bitbake</i> and <i>openembedded-core</i> git repositories, download the <span class="versalitas">yoctoproject</span> from the official website<span class="FootOuter"><span class="SupFootMarker"> [B] </span><span class="HoverFoot"><span class="SupFootMarker"> [B] </span><span class="versalitas">yoctoproject</span> download URI: <a class="URL" href="https://www.yoctoproject.org/downloads">https://www.yoctoproject.org/downloads</a></span></span> and clone the other repositories into the extracted <span class="versalitas">yoctoproject</span> folder. Next move into the <i>meta-ros</i> folder and add <i>&ldquo;timer-tests&rdquo;</i> to the <i>IMAGE_INSTALL</i> variable in <i>meta-ros/recipes-core/images/core-image-ros-roscore.bb</i>. Also you have to rename the <i>&ldquo;boost_%.bbappend&rdquo;</i> recipe in <i>recipes-support/boost/</i> to <i>&ldquo;boost_1.54.0.bbappend&rdquo;.</i> Then move into the <i>meta-openembedded</i> directory and checkout the <i>&ldquo;dora&rdquo;</i> branch.
+</div>
+<div class="Indented">
+<i>Optional:</i> If you also want to have cyclictest included in the image, simply add <i>&ldquo;rt-tests&rdquo;</i> to the <i>IMAGE_INSTALL </i>variable in<i> meta-ros/recipes-core/images/core-image-ros-roscore.bb</i>.
+</div>
+<div class="Indented">
+To build the image for the PandaBoard target platform, we need to clone the <i>meta-ti </i>layer git repository<span class="FootOuter"><span class="SupFootMarker"> [C] </span><span class="HoverFoot"><span class="SupFootMarker"> [C] </span>meta-ti repository URI: <a class="URL" href="http://git.yoctoproject.org/git/meta-ti">http://git.yoctoproject.org/git/meta-ti</a></span></span> into the <span class="versalitas">yoctoproject</span> folder and modify the <i>SRC_URI</i> and <i>SRCREV</i> variables in the kernel recipe <i>meta-ti/recipes-kernel/linux/linux-omap4_3.4.bb, </i>to checkout the correct branch and commit of the kernel sources as specified in <i><a class="Reference" href="#tab:SoftwareVersionsTable">Table 1↓</a> </i>in the row<i>&ldquo;kernel-ubuntu&rdquo;.</i>Then add the <i>meta-ti</i> layer path to your <i>bblayers.conf</i> and change the <i>MACHINE</i> variable in your <i>local.conf</i> to <i>&ldquo;pandaboard&rdquo;</i>.
+</div>
+<div class="Indented">
+Finally to bake the image, execute the following two commands:
+</div>
+<ol>
+<li>
+<i>source oe-init-build-env</i>
+</li>
+<li>
+<i>bitbake core-image-ros-roscore</i>
+</li>
+
+</ol>
+<div class="Unindented">
+On success, the image files are placed in <i>build/tmp/deploy/images/pandaboard</i>/. Those can now be installed to an SD card by invoking the <i>create_mmc.sh</i> script from that directory, with the path to your SD card device file (<i>/dev/sdX</i>) and the file system you want to use (I chose <i>ext4</i>).
+</div>
+<h3 class="Subsubsection">
+<a class="toc" name="toc-Subsubsection-3.1.2">3.1.2</a> Linux 3.4.0-rt17 PREEMPT RT<a class="Label" name="sub:Linux-3.4.0-rt17-PREEMPT"> </a>
+</h3>
+<div class="Unindented">
+To build the same image as described in <a class="Reference" href="#sub:Linux-3.4.0">Section 3.1.1↑</a> but with a <span class="versalitas">preempt rt</span> Linux kernel, you first follow all the steps in <a class="Reference" href="#sub:Linux-3.4.0">Section 3.1.1↑</a>. After that, create a new directory and there, execute the following commands to compile the <span class="versalitas">preempt rt</span> Linux kernel:
+</div>
+<ol>
+<li>
+<i>git clone git://dev.omapzoom.org/pub/scm/integration/kernel-ubuntu.git &amp;&amp; cd kernel-ubuntu</i>
+</li>
+<li>
+<i>git checkout b3d5eeb10553e4bc0c3f250a4d06d43c4ab397a9</i>
+</li>
+<li>
+<i>wget http://hbrobotics.org/wiki/images/8/88/Patch-3-4-9-rt17.patch.doc</i>
+</li>
+<li>
+<i>patch -p1 &lt; ./Patch-3-4-9-rt17.patch.doc</i>
+</li>
+<li>
+<i>wget -O .config http://hbrobotics.org/wiki/images/c/c7/Config-3-4-9-rt17.doc</i>
+</li>
+
+</ol>
+<div class="Unindented">
+Then add <i>&ldquo;#include &lt;linux/cache.h&gt;&rdquo; </i>to<i> security/apparmor/sid.c </i>and compile the kernel by executing <i>&ldquo;make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- uImage&rdquo;.</i> Make sure you have <i>gcc-arm-linux-gnueabi</i> installed on your build system, otherwise the <i>make</i> command will fail. If the compilation was successful, the kernel should now be placed at <i>arch/arm/boot/uImage</i> . Now simply replace the uImage on the boot partition of the SD card with the one we just compiled and you have a bootable real-time Linux image.
+</div>
+<div class="Indented">
+<div class="float">
+<a class="Label" name="tab:SoftwareVersionsTable"> </a><div class="table">
+<table>
+<tr>
+<td align="center" valign="top">
+Software
+</td>
+<td align="center" valign="top">
+Version
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top">
+<span class="versalitas">yoctoproject</span>
+</td>
+<td align="center" valign="top">
+10.0.1 &ldquo;Dora&rdquo;
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top">
+meta-ros
+</td>
+<td align="center" valign="top">
+SHA1 ID &ldquo;097668a6dc955511b58f20ef12fcea96ac333874&rdquo;
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top">
+meta-openembedded
+</td>
+<td align="center" valign="top">
+Branch &ldquo;dora&rdquo;, SHA1 ID &ldquo;40e0f371f3eb1628655c484feac0cebf810737b4&rdquo;
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top">
+meta-ti
+</td>
+<td align="center" valign="top">
+SHA1 ID &ldquo;aacecf01794687af7c78cf98a979a3db8b69938a&rdquo;
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top">
+kernel-ubuntu
+</td>
+<td align="center" valign="top">
+Branch &ldquo;ti-ubuntu-3.4-1485&rdquo;, SHA1 ID &ldquo;b3d5eeb10553e4bc0c3f250a4d06d43c4ab397a9&rdquo;
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top">
+ros_realtime_tests
+</td>
+<td align="center" valign="top">
+SHA1 ID &ldquo;83d50bc52ef3821f31602e8d581dcc04e383e4aa&rdquo;
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top">
+gcc [fedora system]
+</td>
+<td align="center" valign="top">
+Version 4.8.2 20131212 (Red Hat 4.8.2-7)
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top">
+gcc [ubuntu system]
+</td>
+<td align="center" valign="top">
+Version 4.7.3 (Ubuntu/Linaro 4.7.3-1ubuntu1)
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top">
+gcc-arm-linux-gnueabi
+</td>
+<td align="center" valign="top">
+Version 4:4.7.2-1
+</td>
+
+</tr>
+
+</table>
+<div class="caption">
+Table 1 Versions
+</div>
+
+</div>
+
+</div>
+
+</div>
+<h2 class="Subsection">
+<a class="toc" name="toc-Subsection-3.2">3.2</a> timer_tests Test Suite
+</h2>
+<div class="Unindented">
+To run the timer_tests test suite, you first start the <i>roscore</i> process. After that you invoke the timer_tests binary with a set of arguments:
+</div>
+<div class="Description">
+<span class="Description-entry">amount_measurements</span> Amount of repetitions.
+</div>
+<div class="Description">
+<span class="Description-entry">timeout_value_us</span> Timeout value to use for measurements (in microseconds).
+</div>
+<div class="Description">
+<span class="Description-entry">testnode_rt 0/1</span> Specifies whether the test node should run with normal (0) or real-time (1) priority. Note: In the latter case the rt_sched_policy argument has to be specified.
+</div>
+<div class="Description">
+<span class="Description-entry">[rt_sched_policy ’FIFO’/’RR’]</span> Specify the real-time scheduling algorithm. It can be either FIFO or Round-Robin.
+</div>
+<div class="Description">
+<span class="Description-entry">Example:</span> timer_tests 2000000 1000 1 FIFO (used for the sample in <a class="Reference" href="#sec:Test-results">Section 4↓</a>).
+</div>
+<div class="Unindented">
+After the measurements are completed, the results are stored in log files in the directory in which the test suite was invoked. Those log files can be plotted using <i>gnuplot</i>. A sample <i>gnuplot</i> script for that can be found in the <i>ros_realtime_tests</i> git repository. To use the script to plot your test results, set the marked variables with the corresponding values and invoke it by executing <i>&ldquo;gnuplot plotTestRes.gnuplot&rdquo;</i>.
+</div>
+<h1 class="Section">
+<a class="toc" name="toc-Section-4">4</a> Test results<a class="Label" name="sec:Test-results"> </a>
+</h1>
+<div class="Unindented">
+In all tests, the <i>timer_tests</i> test suite was run with two million repetitions but under different conditions:
+</div>
+<ul>
+<li>
+1 / 10 milliseconds timeout
+</li>
+<li>
+standard / real-time process priority
+</li>
+<li>
+Round-Robin / FIFO scheduling
+</li>
+<li>
+normal / PREEMPT RT Linux kernel
+</li>
+<li>
+idle state / 80% CPU load
+</li>
+
+</ul>
+<div class="Unindented">
+The most important insights we gained so far are:
+</div>
+<ul>
+<li>
+Timeout values smaller than 1 millisecond aren’t processed correctly, leading to disproportionally high latencies.
+</li>
+<li>
+If the test node is running with real-time priority, the timer never expires too early (no negative latencies).
+</li>
+<li>
+If the test node is running with real-time priority, the latencies reported to the callback function by the ROS-Timer become quite accurate: The average difference is approximately 6 microseconds and the peak differences are below 150 microseconds compared to an average difference of 50 - 150 microseconds with peak values of up to two milliseconds, when running the test node with normal process priority.
+</li>
+<li>
+The average latencies differ significantly depending on the timeout value. Depending on the setup, the average latencies with a timeout value of 1 and a timeout value of 10 milliseconds differ by 30 to 50 microseconds.
+</li>
+<li>
+Process priority and scheduling policy have to be set before calling <i>ROS::init()</i>, otherwise not all threads run with the intended priority. This can lead to extremely high latencies.
+</li>
+
+</ul>
+<div class="Unindented">
+However, the first test results indicate that with the right setup, hard real-time requirements could be met, as none of the measured latencies on the PREEMPT RT Linux system with the test node running with real-time priority, exceeded 400 microseconds. Though, to prove this statement the empirical evidence has to be strengthened through additional and longer test runs. This is work in progress. The plot below shows the latencies that occurred on the PandaBoard with 3.4.0-rt17+ PREEMPT RT Linux kernel, a CPU load of 80%, a timeout value of one millisecond and the test node running with real-time priority and Round-Robin scheduling. In this scenario, the average latency was 77 microseconds with a maximum latency of 157 microseconds.
+</div>
+<div class="Indented">
+<a href="07.04/RT-OS/timer_tests-panda-load-Tm1000-tnRTRR.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-load-Tm1000-tnRTRR.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-load-Tm1000-tnRTRR.jpg" style="width: 60%; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+<a class="Label" name="examplePlot"> </a>
+</div>
+<div class="Indented">
+In the following sections, you can find all plots of the results from the complete set of test scenarios.
+</div>
+<h2 class="Subsection">
+<a class="toc" name="toc-Subsection-4.1">4.1</a> Linux 3.4.0 no CPU load
+</h2>
+<div class="Unindented">
+<table>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+
+</td>
+<td align="center" valign="top">
+1ms
+</td>
+<td align="center" valign="top">
+10ms
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+normal priority
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-Tm1000.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-Tm1000.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-Tm1000.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> -145us <i>AVG:</i> 65us <i>MAX:</i> 11817us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-Tm10000.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-Tm10000.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-Tm10000.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN: </i>-112us <i>AVG:</i> 97us <i>MAX:</i> 10233us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+real-time priority, Round-Robin scheduling
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-Tm1000-tnRTRR.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-Tm1000-tnRTRR.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-Tm1000-tnRTRR.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 7us <i>AVG:</i> 67us <i>MAX:</i> 159us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-Tm10000-tnRTRR.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-Tm10000-tnRTRR.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-Tm10000-tnRTRR.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 9us <i>AVG:</i> 94us <i>MAX:</i> 498us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+real-time priority, FIFO scheduling
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-Tm1000-tnRTFIFO.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-Tm1000-tnRTFIFO.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-Tm1000-tnRTFIFO.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 7us <i>AVG:</i> 67us <i>MAX:</i> 434us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-Tm10000-tnRTFIFO.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-Tm10000-tnRTFIFO.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-Tm10000-tnRTFIFO.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 9us <i>AVG:</i> 94us <i>MAX:</i> 223us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+
+</table>
+
+</div>
+<h2 class="Subsection">
+<a class="toc" name="toc-Subsection-4.2">4.2</a> Linux 3.4.0 80% CPU load
+</h2>
+<div class="Unindented">
+<table>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+
+</td>
+<td align="center" valign="top">
+1ms
+</td>
+<td align="center" valign="top">
+10ms
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+normal priority
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-load-Tm1000.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-load-Tm1000.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-load-Tm1000.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> -1000us <i>AVG:</i> 56us <i>MAX:</i> 1258us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-load-Tm10000.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-load-Tm10000.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-load-Tm10000.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN: </i>-875us <i>AVG:</i> 107us <i>MAX:</i> 1901us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+real-time priority, Round-Robin scheduling
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-load-Tm1000-tnRTRR.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-load-Tm1000-tnRTRR.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-load-Tm1000-tnRTRR.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 7us <i>AVG:</i> 56us <i>MAX:</i> 8765us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-load-Tm10000-tnRTRR.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-load-Tm10000-tnRTRR.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-load-Tm10000-tnRTRR.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 9us <i>AVG:</i> 89us <i>MAX:</i> 223us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+real-time priority, FIFO scheduling
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-load-Tm1000-tnRTFIFO.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-load-Tm1000-tnRTFIFO.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-load-Tm1000-tnRTFIFO.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 7us <i>AVG:</i> 55us <i>MAX:</i> 464us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/normal-OS/timer_tests-panda-load-Tm10000-tnRTFIFO.jpg"><img class="embedded" src="07.04/normal-OS/timer_tests-panda-load-Tm10000-tnRTFIFO.jpg" alt="figure 07.04/normal-OS/timer_tests-panda-load-Tm10000-tnRTFIFO.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 9us <i>AVG:</i> 89us <i>MAX:</i> 1840us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+
+</table>
+
+</div>
+<h2 class="Subsection">
+<a class="toc" name="toc-Subsection-4.3">4.3</a> Linux 3.4.0-rt17+ PREEMPT RT no CPU load
+</h2>
+<div class="Unindented">
+<table>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+
+</td>
+<td align="center" valign="top">
+1ms
+</td>
+<td align="center" valign="top">
+10ms
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+normal priority
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-Tm1000.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-Tm1000.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-Tm1000.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> -139us <i>AVG:</i> 84us <i>MAX:</i> 12017us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-Tm10000.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-Tm10000.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-Tm10000.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> -209us <i>AVG:</i> 137us <i>MAX:</i> 9976us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+real-time priority, Round-Robin scheduling
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-Tm1000-tnRTRR.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-Tm1000-tnRTRR.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-Tm1000-tnRTRR.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 35us <i>AVG:</i> 81us <i>MAX:</i> 192us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-Tm10000-tnRTRR.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-Tm10000-tnRTRR.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-Tm10000-tnRTRR.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 60us <i>AVG:</i> 134us <i>MAX:</i> 225us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+real-time priority, FIFO scheduling
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-Tm1000-tnRTFIFO.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-Tm1000-tnRTFIFO.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-Tm1000-tnRTFIFO.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 35us <i>AVG:</i> 81us <i>MAX:</i> 313us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-Tm10000-tnRTFIFO.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-Tm10000-tnRTFIFO.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-Tm10000-tnRTFIFO.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 64us <i>AVG:</i> 134us <i>MAX:</i> 230us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+
+</table>
+
+</div>
+<h2 class="Subsection">
+<a class="toc" name="toc-Subsection-4.4">4.4</a> Linux 3.4.0-rt17+ PREEMPT RT 80% CPU load
+</h2>
+<div class="Unindented">
+<table>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+
+</td>
+<td align="center" valign="top">
+1ms
+</td>
+<td align="center" valign="top">
+10ms
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+normal priority
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-load-Tm1000.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-load-Tm1000.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-load-Tm1000.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> -992us <i>AVG:</i> 251us <i>MAX:</i> 2455us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-load-Tm10000.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-load-Tm10000.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-load-Tm10000.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> -1732us <i>AVG:</i> 266us <i>MAX:</i> 3927us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+real-time priority, Round-Robin scheduling
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-load-Tm1000-tnRTRR.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-load-Tm1000-tnRTRR.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-load-Tm1000-tnRTRR.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 34us <i>AVG:</i> 77us <i>MAX:</i> 157us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-load-Tm10000-tnRTRR.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-load-Tm10000-tnRTRR.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-load-Tm10000-tnRTRR.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 60us <i>AVG:</i> 116us <i>MAX:</i> 225us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+<tr>
+<td align="center" valign="top" style="width: 3.5cm;">
+real-time priority, FIFO scheduling
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-load-Tm1000-tnRTFIFO.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-load-Tm1000-tnRTFIFO.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-load-Tm1000-tnRTFIFO.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 33us <i>AVG:</i> 77us <i>MAX:</i> 205us
+</div>
+
+</div>
+
+</div>
+
+</td>
+<td align="center" valign="top">
+<div class="PlainVisible">
+<div class="Frameless" style="width: 12cm;">
+<div class="PlainVisible">
+<a href="07.04/RT-OS/timer_tests-panda-load-Tm10000-tnRTFIFO.jpg"><img class="embedded" src="07.04/RT-OS/timer_tests-panda-load-Tm10000-tnRTFIFO.jpg" alt="figure 07.04/RT-OS/timer_tests-panda-load-Tm10000-tnRTFIFO.jpg" style="width: 12cm; max-width: 1920px; height: auto; max-height: 1080px;"/></a>
+
+</div>
+<div class="PlainVisible">
+<i>MIN:</i> 58us <i>AVG:</i> 115us <i>MAX:</i> 223us
+</div>
+
+</div>
+
+</div>
+
+</td>
+
+</tr>
+
+</table>
+
+</div>
+
+<hr class="footer"/>
+<div class="footer" id="copyright">
+Copyright (C) 2014, <a href="http://bmw-carit.com">BMW Car IT GmbH</a>
+</div>
+<div class="footer" id="generated-by">
+Document generated by <a href="http://elyxer.nongnu.org/">eLyXer 1.2.5 (2013-03-10)</a> on <span class="create-date">2014-04-24T11:12:30.329000</span>
+</div>
+</div>
+</body>
+</html>
