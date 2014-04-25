@@ -12,6 +12,7 @@
 #include "ros/ros.h"
 #include <string>
 #include <time.h>
+#include <rt_tests_support/MeasurementDataEvaluator.h>
 
 class OneShotLatencyMeasurer {
 public:
@@ -38,27 +39,20 @@ private:
 	const int loopLength;
 	const double timeoutSeconds;
 	const long timeoutNanoseconds;
-	long minLatencyNs;
-	long maxLatencyNs;
-	unsigned long long avgLatencyNs;
-	long minLatencyReportedNs;
-	long maxLatencyReportedNs;
-	unsigned long long avgLatencyReportedNs;
 	ros::NodeHandle* nodeHandle;
 	long* latenciesNs;
 	long* latenciesReportedNs;
-	long* differenceNs;
+	long* differenceNs; //reported - measured
 	bool callbackCalled;
 	struct timespec callbackTs;
 	int loopCounter;
-	long maxDifference;
-	long minDifference;
-	unsigned long long avgDifferenceAbs;
 	const bool lockMemory;
+	MeasurementDataEvaluator* latencyData;
+	MeasurementDataEvaluator* reportedLatencyData;
+	MeasurementDataEvaluator* differenceData;
 
 	void saveGnuplotData(std::string filename, long* plotValues, int maxValueMs, int minValueMs);
 	void measureOneshotTimerLatencies();
-	void calcMinMaxAndAvg();
 	void timerCallback(const ros::TimerEvent&);
 	void spinUntilCallbackCalled();
 };
