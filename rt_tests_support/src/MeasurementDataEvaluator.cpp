@@ -30,6 +30,16 @@ long MeasurementDataEvaluator::getMaxValue()
 	return maxValue;
 }
 
+long* MeasurementDataEvaluator::getData()
+{
+	return data;
+}
+
+int MeasurementDataEvaluator::getDataSize()
+{
+	return dataSize;
+}
+
 void MeasurementDataEvaluator::calcMinMaxAndAvg()
 {
 	maxValue = data[0];

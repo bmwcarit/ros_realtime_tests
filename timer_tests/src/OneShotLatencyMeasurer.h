@@ -51,7 +51,7 @@ private:
 	MeasurementDataEvaluator* reportedLatencyData;
 	MeasurementDataEvaluator* differenceData;
 
-	void saveGnuplotData(std::string filename, long* plotValues, int maxValueMs, int minValueMs);
+	void saveGnuplotData(std::string filename, MeasurementDataEvaluator* plotData);
 	void measureOneshotTimerLatencies();
 	void timerCallback(const ros::TimerEvent&);
 	void spinUntilCallbackCalled();

@@ -15,6 +15,8 @@ public:
 	long getMinValue();
 	long getAvgValue();
 	long getMaxValue();
+	long* getData();
+	int getDataSize();
 	~MeasurementDataEvaluator();
 private:
 	long* data;
