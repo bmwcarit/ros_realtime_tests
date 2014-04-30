@@ -14,10 +14,10 @@ PlotDataFileCreator::PlotDataFileCreator()
 {
 }
 
-void PlotDataFileCreator::createPlottableDatafile(std::string filename, std::string preamble, MeasurementDataEvaluator* data, const int precisionDivisor)
+void PlotDataFileCreator::createPlottableDatafile(std::string filename, std::string preamble, MeasurementDataEvaluator* data)
 {
-	const int maxValue = data->getMaxValue()/precisionDivisor;
-	const int minValue = data->getMinValue()/precisionDivisor;
+	const int maxValue = data->getMaxValue();
+	const int minValue = data->getMinValue();
 	const int latHitArraySize = maxValue + 1;
 	const long* plotValues = data->getData();
 	int hits[latHitArraySize];
@@ -31,7 +31,7 @@ void PlotDataFileCreator::createPlottableDatafile(std::string filename, std::str
 	{
 		if(plotValues[i] >= 0)
 		{
-			hits[plotValues[i]/precisionDivisor]++;
+			hits[plotValues[i]]++;
 		}
 	}
 
@@ -56,7 +56,7 @@ void PlotDataFileCreator::createPlottableDatafile(std::string filename, std::str
 		{
 			if(plotValues[i] < 0)
 			{
-				negHits[(plotValues[i] * (-1))/precisionDivisor]++;
+				negHits[plotValues[i] * (-1)]++;
 			}
 		}
 

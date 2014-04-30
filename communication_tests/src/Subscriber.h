@@ -20,9 +20,6 @@ public:
 	void startMeasurement();
 	void printMeasurementResults();
 	void saveGnuplotData(std::string filename);
-	int getMinLatencyUs();
-	int getAvgLatencyUs();
-	int getMaxLatencyUs();
 	int getAmountMessagesOutOfOrder();
 	MeasurementDataEvaluator* getMeasurementData();
 	~Subscriber();
@@ -30,7 +27,7 @@ private:
 	Subscriber();
 	int lastSeq;
 	int outOfOrderCounter;
-	long* latenciesNs;
+	long* latenciesUs;
 	const int amountMessages;
 	const static int messageMissing = -1;
 	ros::NodeHandle* nodeHandle;

@@ -25,24 +25,17 @@ public:
 	void saveReportedLatencyGnuplotData(std::string filename);
 	const static int clock_id = CLOCK_MONOTONIC_RAW;
 
-	//Getter methods
-	int getMaxLatencyUs();
-	int getMinLatencyUs();
-	int getAvgLatencyUs();
-	int getMaxReportedLatencyUs();
-	int getMinReportedLatencyUs();
-	int getAvgReportedLatencyUs();
-	int getMaxDifferenceUs();
-	int getMinDifferenceUs();
-	int getAvgDifferenceAbsUs();
+	MeasurementDataEvaluator* getMeasuredLatencyData();
+	MeasurementDataEvaluator* getReportedLatencyData();
+	MeasurementDataEvaluator* getLatencyDifferenceData();
 private:
 	const int loopLength;
 	const double timeoutSeconds;
 	const long timeoutNanoseconds;
 	ros::NodeHandle* nodeHandle;
-	long* latenciesNs;
-	long* latenciesReportedNs;
-	long* differenceNs; //reported - measured
+	long* latenciesUs;
+	long* latenciesReportedUs;
+	long* differenceUs; //reported - measured
 	bool callbackCalled;
 	struct timespec callbackTs;
 	int loopCounter;

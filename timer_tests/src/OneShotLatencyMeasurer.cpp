@@ -13,6 +13,7 @@
 #include <rt_tests_support/Logger.h>
 #include <rt_tests_support/PlotDataFileCreator.h>
 
+#define NANO_TO_MICRO_DIVISOR 1000
 #define SEC_TO_NANOSEC_MULTIPLIER 1000000000
 
 OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeoutNanoSeconds, ros::NodeHandle* nodeHandle, bool lockMemory) :
@@ -20,9 +21,9 @@ OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeou
 		timeoutSeconds(((double)timeoutNanoSeconds)/SEC_TO_NANOSEC_MULTIPLIER),
 		timeoutNanoseconds(timeoutSeconds * SEC_TO_NANOSEC_MULTIPLIER),
 		nodeHandle(nodeHandle),
-		latenciesNs((long*) malloc(sizeof(long)*loopLength)),
-		latenciesReportedNs((long*) malloc(sizeof(long)*loopLength)),
-		differenceNs((long*) malloc(sizeof(long)*loopLength)),
+		latenciesUs((long*) malloc(sizeof(long)*loopLength)),
+		latenciesReportedUs((long*) malloc(sizeof(long)*loopLength)),
+		differenceUs((long*) malloc(sizeof(long)*loopLength)),
 		callbackCalled(false),
 		callbackTs(),
 		loopCounter(0),
@@ -31,18 +32,18 @@ OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeou
 {
 	for(int i = 0; i < loopLength; i++)
 	{
-		latenciesNs[i] = 0;
-		latenciesReportedNs[i] = 0;
-		differenceNs[i] = 0;
+		latenciesUs[i] = 0;
+		latenciesReportedUs[i] = 0;
+		differenceUs[i] = 0;
 	}
 }
 
 void OneShotLatencyMeasurer::measure()
 {
 	measureOneshotTimerLatencies();
-	latencyData = new MeasurementDataEvaluator(latenciesNs, loopLength);
-	reportedLatencyData = new MeasurementDataEvaluator(latenciesReportedNs, loopLength);
-	differenceData = new MeasurementDataEvaluator(differenceNs, loopLength);
+	latencyData = new MeasurementDataEvaluator(latenciesUs, loopLength);
+	reportedLatencyData = new MeasurementDataEvaluator(latenciesReportedUs, loopLength);
+	differenceData = new MeasurementDataEvaluator(differenceUs, loopLength);
 }
 
 void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
@@ -69,13 +70,28 @@ void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
 		spinUntilCallbackCalled();
 		latencyTempNs = ((callbackTs.tv_sec - startTs.tv_sec) * SEC_TO_NANOSEC_MULTIPLIER) + (callbackTs.tv_nsec - startTs.tv_nsec);
 		latencyTempNs -= timeoutNanoseconds;
-		latenciesNs[loopCounter] = latencyTempNs;
-		differenceNs[loopCounter] = latenciesReportedNs[loopCounter] - latenciesNs[loopCounter];
+		latenciesUs[loopCounter] = latencyTempNs/NANO_TO_MICRO_DIVISOR;
+		differenceUs[loopCounter] = latenciesReportedUs[loopCounter] - latenciesUs[loopCounter];
 	}
 	if(lockMemory)
 	{
 		munlockall();
 	}
+}
+
+MeasurementDataEvaluator* OneShotLatencyMeasurer::getMeasuredLatencyData()
+{
+	return latencyData;
+}
+
+MeasurementDataEvaluator* OneShotLatencyMeasurer::getReportedLatencyData()
+{
+	return reportedLatencyData;
+}
+
+MeasurementDataEvaluator* OneShotLatencyMeasurer::getLatencyDifferenceData()
+{
+	return differenceData;
 }
 
 void OneShotLatencyMeasurer::printMeasurementResults()
@@ -84,13 +100,13 @@ void OneShotLatencyMeasurer::printMeasurementResults()
 	ss << "Measurement results with a loop length of " << loopLength << " and a timeout of " << (int) (timeoutNanoseconds/1000) << " us:";
 	Logger::INFO(ss.str().c_str());
 	ss.str("");
-	ss <<"Measured:\tMIN:  " << getMinLatencyUs() << "us \tAVG:  " << getAvgLatencyUs() << "us \tMAX:  " << getMaxLatencyUs() << "us";
+	ss <<"Measured:\tMIN:  " << latencyData->getMinValue() << "us \tAVG:  " << latencyData->getAvgValue() << "us \tMAX:  " << latencyData->getMaxValue() << "us";
 	Logger::INFO(ss.str().c_str());
 	ss.str("");
-	ss <<"Reported:\tMIN:  " << getMinReportedLatencyUs() << "us \tAVG:  " << getAvgReportedLatencyUs() << "us \tMAX:  " << getMaxReportedLatencyUs() << "us";
+	ss <<"Reported:\tMIN:  " << reportedLatencyData->getMinValue() << "us \tAVG:  " << reportedLatencyData->getAvgValue() << "us \tMAX:  " << reportedLatencyData->getMaxValue() << "us";
 	Logger::INFO(ss.str().c_str());
 	ss.str("");
-	ss << "Difference:\tMIN: " << getMinDifferenceUs() << "us\tAVG: " << getAvgDifferenceAbsUs() << "us\tMAX: " << getMaxDifferenceUs() << "us";
+	ss << "Difference:\tMIN: " << differenceData->getMinValue() << "us\tAVG: " << differenceData->getAvgValue() << "us\tMAX: " << differenceData->getMaxValue() << "us";
 	Logger::INFO(ss.str().c_str());
 }
 
@@ -113,62 +129,18 @@ void OneShotLatencyMeasurer::saveGnuplotData(std::string filename, MeasurementDa
 	std::stringstream ss;
 	ss << "# Plot data for gnuplot" << std::endl;
 	ss << "# Timeout: " << (int) timeoutNanoseconds/1000 << "us, LoopLength: " << loopLength << std::endl;
-	ss << "# Measured:\t MIN: " << getMinLatencyUs()  << "us \tAVG: " << getAvgLatencyUs() << "us \tMAX: " << getMaxLatencyUs() << "us" << std::endl;
-	ss << "# Reported:\t MIN: " << getMinReportedLatencyUs()  << "us \tAVG: " << getAvgReportedLatencyUs() << "us \tMAX: " << getMaxReportedLatencyUs() << "us" << std::endl;
-	ss << "# Difference:\t MIN: " << getMinDifferenceUs()  << "us \tAVG: " << getAvgDifferenceAbsUs() << "us \tMAX: " << getMaxDifferenceUs() << "us" << std::endl;
+	ss << "# Measured:\t MIN: " << latencyData->getMinValue() << "us \tAVG:  " << latencyData->getAvgValue() << "us \tMAX:  " << latencyData->getMaxValue() << "us" << std::endl;
+	ss << "# Reported:\t MIN: " << reportedLatencyData->getMinValue() << "us \tAVG:  " << reportedLatencyData->getAvgValue() << "us \tMAX:  " << reportedLatencyData->getMaxValue() << "us" << std::endl;
+	ss << "# Difference:\t MIN: " << differenceData->getMinValue() << "us\tAVG: " << differenceData->getAvgValue() << "us\tMAX: " << differenceData->getMaxValue() << "us" << std::endl;
 	PlotDataFileCreator plotter;
-	plotter.createPlottableDatafile(filename, ss.str(), plotData, 1000);
-}
-
-int OneShotLatencyMeasurer::getMaxLatencyUs()
-{
-	return latencyData->getMaxValue()/1000;
-}
-
-int OneShotLatencyMeasurer::getMinLatencyUs()
-{
-	return latencyData->getMinValue()/1000;
-}
-
-int OneShotLatencyMeasurer::getAvgLatencyUs()
-{
-	return latencyData->getAvgValue()/1000;
-}
-
-int OneShotLatencyMeasurer::getMaxReportedLatencyUs()
-{
-	return reportedLatencyData->getMaxValue()/1000;
-}
-
-int OneShotLatencyMeasurer::getMinReportedLatencyUs()
-{
-	return reportedLatencyData->getMinValue()/1000;
-}
-
-int OneShotLatencyMeasurer::getAvgReportedLatencyUs()
-{
-	return reportedLatencyData->getAvgValue()/1000;
-}
-
-int OneShotLatencyMeasurer::getMaxDifferenceUs()
-{
-	return differenceData->getMaxValue()/1000;
-}
-
-int OneShotLatencyMeasurer::getMinDifferenceUs()
-{
-	return differenceData->getMinValue()/1000;
-}
-
-int OneShotLatencyMeasurer::getAvgDifferenceAbsUs()
-{
-	return differenceData->getAvgValue()/1000;
+	plotter.createPlottableDatafile(filename, ss.str(), plotData);
 }
 
 void OneShotLatencyMeasurer::timerCallback(const ros::TimerEvent& te)
 {
 	clock_gettime(clock_id, &callbackTs);
-	latenciesReportedNs[loopCounter] = ((te.current_real.sec - te.current_expected.sec) * SEC_TO_NANOSEC_MULTIPLIER) + (te.current_real.nsec - te.current_expected.nsec);
+	long latencyReportedTemp = ((te.current_real.sec - te.current_expected.sec) * SEC_TO_NANOSEC_MULTIPLIER) + (te.current_real.nsec - te.current_expected.nsec);
+	latenciesReportedUs[loopCounter] = latencyReportedTemp/NANO_TO_MICRO_DIVISOR;
 	callbackCalled = true;
 }
 
@@ -183,9 +155,9 @@ void OneShotLatencyMeasurer::spinUntilCallbackCalled()
 
 OneShotLatencyMeasurer::~OneShotLatencyMeasurer()
 {
-	delete differenceNs;
-	delete latenciesReportedNs;
-	delete latenciesNs;
+	delete differenceUs;
+	delete latenciesReportedUs;
+	delete latenciesUs;
 	delete latencyData, reportedLatencyData, differenceData;
 }
 

@@ -15,7 +15,7 @@
 class PlotDataFileCreator {
 public:
 	PlotDataFileCreator();
-	void createPlottableDatafile(std::string filename, std::string preamble, MeasurementDataEvaluator* data, const int precisionDividor);
+	void createPlottableDatafile(std::string filename, std::string preamble, MeasurementDataEvaluator* data);
 	~PlotDataFileCreator();
 };
 

@@ -11,16 +11,16 @@
 
 TEST_F(RosOneShotTimerTests, MaxLatencySmallerThan400MicroSecond)
 {
-	ASSERT_LE(maxLatencyMs, 400);
+	ASSERT_LE(measurementData->getMaxValue(), 400);
 }
 
 TEST_F(RosOneShotTimerTests, AverageLatencySmallerThan400MicroSecond)
 {
-	ASSERT_LE(avgLatencyMs, 400);
+	ASSERT_LE(measurementData->getAvgValue(), 400);
 }
 
 TEST_F(RosOneShotTimerTests, NoNegativeLatencies)
 {
-	ASSERT_GE(minLatencyMs, 0);
+	ASSERT_GE(measurementData->getMinValue(), 0);
 }
 

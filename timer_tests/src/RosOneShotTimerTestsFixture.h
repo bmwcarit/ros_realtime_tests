@@ -10,12 +10,11 @@
 #define ROSONESHOTTIMERTESTSFIXTURE_H_
 
 #include <gtest/gtest.h>
+#include <rt_tests_support/MeasurementDataEvaluator.h>
 
 class RosOneShotTimerTests : public ::testing::Test {
 protected:
-	static int minLatencyMs;
-	static int maxLatencyMs;
-	static int avgLatencyMs;
+	static MeasurementDataEvaluator* measurementData;
 	static bool setupSucceeded;
 
 	static void SetUpTestCase();

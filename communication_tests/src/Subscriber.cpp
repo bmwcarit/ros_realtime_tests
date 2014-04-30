@@ -12,15 +12,17 @@
 #include <rt_tests_support/Logger.h>
 #include <rt_tests_support/PlotDataFileCreator.h>
 
+#define NANO_TO_MICRO_DIVISOR 1000
+
 Subscriber::Subscriber(const std::string& topic, ros::NodeHandle* nodeHandle, int amountMessages) :
 	lastSeq(messageMissing), outOfOrderCounter(0),
-	latenciesNs((long*) malloc(sizeof(long) * amountMessages)),
+	latenciesUs((long*) malloc(sizeof(long) * amountMessages)),
 	amountMessages(amountMessages), nodeHandle(nodeHandle),
 	rosSubscriber(nodeHandle->subscribe(topic, 1000, &Subscriber::messageCallback, this))
 {
 	for(int i = 0; i < amountMessages; i++)
 	{
-		latenciesNs[i] = messageMissing;
+		latenciesUs[i] = messageMissing;
 	}
 }
 
@@ -29,36 +31,21 @@ void Subscriber::startMeasurement()
 	lastSeq = messageMissing;
 	outOfOrderCounter = 0;
 	ros::spin();
-	measurementData = new MeasurementDataEvaluator(latenciesNs, amountMessages);
-}
-
-int Subscriber::getMinLatencyUs()
-{
-	return measurementData->getMinValue()/1000;
-}
-
-int Subscriber::getAvgLatencyUs()
-{
-	return measurementData->getAvgValue()/1000;
-}
-
-int Subscriber::getMaxLatencyUs()
-{
-	return measurementData->getMaxValue()/1000;
+	measurementData = new MeasurementDataEvaluator(latenciesUs, amountMessages);
 }
 
 std::string Subscriber::getMeasurementSummary()
 {
 	std::stringstream ss;
 	ss << "Amount messages: " << amountMessages << "; Messages out of order: " << getAmountMessagesOutOfOrder() << std::endl;
-	ss << "MIN: " << getMinLatencyUs() << "us\tAVG: " << getAvgLatencyUs() << "us\tMAX: " << getMaxLatencyUs() << std::endl;
+	ss << "MIN: " << measurementData->getMinValue() << "us\tAVG: " << measurementData->getAvgValue() << "us\tMAX: " << measurementData->getMaxValue() << "us" << std::endl;
 	if(measurementData->getMinValue() == messageMissing)
 	{
 		int messagesMissing = 0;
 		ss << "Missing messages: |";
 		for(int i = 0; i < amountMessages; i++)
 		{
-			if(latenciesNs[i] == messageMissing)
+			if(latenciesUs[i] == messageMissing)
 			{
 				ss << i << "|";
 				messagesMissing++;
@@ -83,9 +70,9 @@ void Subscriber::saveGnuplotData(std::string filename)
 	std::stringstream ss;
 	ss << "set title \"communication_tests plot " << machineName.str() << " -  " << amountMessages << " samples  \"" << std::endl;
 	ss << "set xlabel \"Latency in micro seconds - MIN:  ";
-	ss << getMinLatencyUs() << "us  AVG: " << getAvgLatencyUs() << "us MAX: " << getMaxLatencyUs() << "us\"" << std::endl;
+	ss << measurementData->getMinValue() << "us  AVG: " << measurementData->getAvgValue() << "us MAX: " << measurementData->getMaxValue() << "us\"" << std::endl;
 	ss << "set ylabel \"Number of latency samples\"" << std::endl << "set yrange [0.7:]" << std::endl << "set logscale y" << std::endl;
-	int xrange = getMaxLatencyUs() + 50;
+	int xrange = measurementData->getMaxValue() + 50;
 	ss << "set xrange [1:" << xrange << "]" << std::endl << "set xtics add(500, 1000)" << std::endl;
 	ss << "set terminal jpeg size 1920,1080" << std::endl;
 	ss << "set output \"" << filename << ".jpg\"" << std::endl;
@@ -101,7 +88,7 @@ void Subscriber::saveGnuplotData(std::string filename)
 		}
 	}
 	PlotDataFileCreator plotter;
-	plotter.createPlottableDatafile(filename, ss.str(), measurementData, 1000);
+	plotter.createPlottableDatafile(filename, ss.str(), measurementData);
 }
 
 void Subscriber::printMeasurementResults()
@@ -133,7 +120,7 @@ void Subscriber::messageCallback(const communication_tests::timestamp_msg::Const
 {
 	struct timespec ts;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-	latenciesNs[msg->seq] = (ts.tv_sec - msg->sec) * 1000000000 + (ts.tv_nsec - msg->nsec);
+	latenciesUs[msg->seq] = ((ts.tv_sec - msg->sec) * 1000000000 + (ts.tv_nsec - msg->nsec))/NANO_TO_MICRO_DIVISOR;
 	if((int) msg->seq < lastSeq)
 	{
 		outOfOrderCounter++;
@@ -148,5 +135,5 @@ void Subscriber::messageCallback(const communication_tests::timestamp_msg::Const
 Subscriber::~Subscriber()
 {
 	delete measurementData;
-	delete latenciesNs;
+	delete latenciesUs;
 }

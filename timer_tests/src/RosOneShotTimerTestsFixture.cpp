@@ -12,9 +12,7 @@
 #include <math.h>
 #include <rt_tests_support/Logger.h>
 
-int RosOneShotTimerTests::minLatencyMs;
-int RosOneShotTimerTests::maxLatencyMs;
-int RosOneShotTimerTests::avgLatencyMs;
+MeasurementDataEvaluator* RosOneShotTimerTests::measurementData;
 bool RosOneShotTimerTests::setupSucceeded;
 
 void RosOneShotTimerTests::SetUpTestCase()
@@ -23,9 +21,7 @@ void RosOneShotTimerTests::SetUpTestCase()
 	setupSucceeded = false;
 	OneShotLatencyMeasurer measurer(loops, timeout_us*1000, nodeHandle, testnodeRT);
 	measurer.measure();
-	minLatencyMs = measurer.getMinLatencyUs();
-	maxLatencyMs = measurer.getMaxLatencyUs();
-	avgLatencyMs = measurer.getAvgLatencyUs();
+	measurementData = measurer.getMeasuredLatencyData();
 	measurer.printMeasurementResults();
 	std::stringstream filenameSS;
 	filenameSS << "Gnuplot_l" << loops << "_Tm" << (int) (timeout_us);
