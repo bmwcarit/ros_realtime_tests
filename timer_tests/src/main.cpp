@@ -25,23 +25,15 @@ void printUsage()
 
 bool setSchedulingPolicy(std::string arg)
 {
-	if(arg.length() == 2)
+	if(arg.length() == 2 && strcasecmp(arg.c_str(), "RR") == 0)
 	{
-		if(strcasecmp(arg.c_str(), "RR") == 0)
-		{
-			fifoScheduling = false;
-			return true;
-		}
-		return false;
+		fifoScheduling = false;
+		return true;
 	}
-	if(arg.length() == 4)
+	if(arg.length() == 4 && strcasecmp(arg.c_str(), "FIFO") == 0)
 	{
-		if(strcasecmp(arg.c_str(), "FIFO") == 0)
-		{
-			fifoScheduling = true;
-			return true;
-		}
-		return false;
+		fifoScheduling = true;
+		return true;
 	}
 	return false;
 }
@@ -67,7 +59,7 @@ bool parseArgs(int argc, char* argv[])
 	loops = atoi(argv[1]);
 	timeout_us = atoi(argv[2]);
 	testnodeRT = argv[3][0] == '1';
-	if(argv[3][0] != '0' && argv[3][0] != '1')
+	if(!(argv[3][0] == '0' || argv[3][0] == '1'))
 	{
 		return false;
 	}
