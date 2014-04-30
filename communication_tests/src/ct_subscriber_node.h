@@ -9,6 +9,7 @@
 #ifndef CT_SUBSCRIBER_NODE_H_
 #define CT_SUBSCRIBER_NODE_H_
 
+extern int pubFrequency;
 extern int amountMessages;
 
 #endif //CT_SUBSCRIBER_NODE_H_

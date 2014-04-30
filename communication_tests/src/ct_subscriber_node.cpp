@@ -11,20 +11,22 @@
 #include <gtest/gtest.h>
 #include <rt_tests_support/Logger.h>
 
+int pubFrequency;
 int amountMessages;
 
 void printUsage()
 {
-	Logger::ERROR("Usage: communication_tests_publisher <amount_messages>");
+	Logger::ERROR("Usage: communication_tests_publisher <amount_messages> <pub_frequency(Hz)>");
 }
 
 int main(int argc, char* argv[])
 {
-	if(argc != 2)
+	if(argc != 3)
 	{
 		printUsage();
 		return 1;
 	}
+	pubFrequency = atoi(argv[2]);
 	amountMessages = atoi(argv[1]);
 	int x = 1;
 	char* y[1];

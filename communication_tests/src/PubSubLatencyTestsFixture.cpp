@@ -8,6 +8,7 @@
 
 #include "ct_subscriber_node.h"
 #include "PubSubLatencyTestsFixture.h"
+#include <sstream>
 
 Subscriber* PubSubLatencyTests::subscriber;
 MeasurementDataEvaluator* PubSubLatencyTests::measuredData;
@@ -18,7 +19,9 @@ void PubSubLatencyTests::SetUpTestCase()
 	subscriber->startMeasurement();
 	subscriber->printMeasurementResults();
 	measuredData = subscriber->getMeasurementData();
-	subscriber->saveGnuplotData("Gnuplot-PubSubLatencies.log");
+	std::stringstream filename;
+	filename << "ct_gnuplot_l" << amountMessages << "_fq" << pubFrequency << ".log";
+	subscriber->saveGnuplotData(filename.str());
 }
 
 void PubSubLatencyTests::TearDownTestCase()

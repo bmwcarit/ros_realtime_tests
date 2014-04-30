@@ -8,6 +8,7 @@
 
 #include "Subscriber.h"
 #include <sstream>
+#include <sys/utsname.h>
 #include <rt_tests_support/Logger.h>
 #include <rt_tests_support/PlotDataFileCreator.h>
 
@@ -71,8 +72,24 @@ std::string Subscriber::getMeasurementSummary()
 
 void Subscriber::saveGnuplotData(std::string filename)
 {
+	struct utsname unameResponse;
+	int rc = uname(&unameResponse);
+	std::stringstream machineName;
+	if(rc == 0)
+	{
+		machineName << unameResponse.nodename << " " << unameResponse.sysname << " " << unameResponse.release;
+	}
 	std::stringstream measurementSummary(getMeasurementSummary());
 	std::stringstream ss;
+	ss << "set title \"communication_tests plot " << machineName.str() << " -  " << amountMessages << " samples  \"" << std::endl;
+	ss << "set xlabel \"Latency in micro seconds - MIN:  ";
+	ss << getMinLatencyUs() << "us  AVG: " << getAvgLatencyUs() << "us MAX: " << getMaxLatencyUs() << "us\"" << std::endl;
+	ss << "set ylabel \"Number of latency samples\"" << std::endl << "set yrange [0.7:]" << std::endl << "set logscale y" << std::endl;
+	int xrange = getMaxLatencyUs() + 50;
+	ss << "set xrange [1:" << xrange << "]" << std::endl << "set xtics add(500, 1000)" << std::endl;
+	ss << "set terminal jpeg size 1920,1080" << std::endl;
+	ss << "set output \"" << filename << ".jpg\"" << std::endl;
+	ss << "plot \"-\" u 1:2 t 'Latency_Occurrence' w steps" << std::endl;
 	ss << "# Plot data for gnuplot" << std::endl;
 	while(!measurementSummary.eof() && !measurementSummary.fail())
 	{
