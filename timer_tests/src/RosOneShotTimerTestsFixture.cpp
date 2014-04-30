@@ -6,7 +6,7 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
-#include "main.h"
+#include "Config.h"
 #include "OneShotLatencyMeasurer.h"
 #include "RosOneShotTimerTestsFixture.h"
 #include <math.h>
@@ -19,25 +19,14 @@ void RosOneShotTimerTests::SetUpTestCase()
 {
 	Logger::INFO("Performing ROS Timer latency measurements...");
 	setupSucceeded = false;
-	OneShotLatencyMeasurer measurer(loops, timeout_us*1000, nodeHandle, testnodeRT);
+	OneShotLatencyMeasurer measurer(Config::getConfig()->loops, Config::getConfig()->timeout_us*1000, Config::getConfig()->nodeHandle, Config::getConfig()->testnodeRT);
 	measurer.measure();
 	measurementData = measurer.getMeasuredLatencyData();
 	measurer.printMeasurementResults();
-	std::stringstream filenameSS;
-	filenameSS << "Gnuplot_l" << loops << "_Tm" << (int) (timeout_us);
-	if(testnodeRT)
-	{
-		filenameSS << "-tnRT";
-		if(fifoScheduling)
-		{
-			filenameSS << "FIFO";
-		} else {
-			filenameSS << "RR";
-		}
-	}
-	measurer.saveMeasuredLatencyGnuplotData(filenameSS.str() + "-measured.log");
-	measurer.saveReportedLatencyGnuplotData(filenameSS.str() + "-reported.log");
-	measurer.saveDiffGnuplotData(filenameSS.str() + "-diff.log");
+	std::string filename(Config::getConfig()->getFilename());
+	measurer.saveMeasuredLatencyGnuplotData(filename + "-measured.log");
+	measurer.saveReportedLatencyGnuplotData(filename + "-reported.log");
+	measurer.saveDiffGnuplotData(filename + "-diff.log");
 	setupSucceeded = true;
 }
 

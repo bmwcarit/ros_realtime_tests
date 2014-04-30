@@ -6,7 +6,7 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
-#include "main.h"
+#include "Config.h"
 #include "OneShotLatencyMeasurer.h"
 #include <gtest/gtest.h>
 #include <rt_tests_support/Logger.h>
@@ -26,11 +26,11 @@ TEST(SystemTest, SystemClockPrecisionOfAtLeast1MicroSecond)
 
 TEST(SystemTest, CanSwitchTestnodeToRealtimePriority)
 {
-	ASSERT_EQ(0, testnodePrioritySwitcher->switchToRealtimePriority());
+	ASSERT_EQ(0, Config::getConfig()->testnodePrioritySwitcher->switchToRealtimePriority());
 }
 
 TEST(SystemTest, CanSwitchTestnodeBackToNormalPriority)
 {
-	ASSERT_EQ(0, testnodePrioritySwitcher->switchToNormalPriority());
+	ASSERT_EQ(0, Config::getConfig()->testnodePrioritySwitcher->switchToNormalPriority());
 }
 

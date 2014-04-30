@@ -6,17 +6,10 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
-#include "main.h"
+#include "Config.h"
 #include "ros/ros.h"
 #include <gtest/gtest.h>
 #include <rt_tests_support/Logger.h>
-
-ros::NodeHandle* nodeHandle;
-PrioritySwitcher* testnodePrioritySwitcher;
-int loops;
-int timeout_us;
-bool testnodeRT;
-bool fifoScheduling;
 
 void printUsage()
 {
@@ -27,12 +20,12 @@ bool setSchedulingPolicy(std::string arg)
 {
 	if(arg.length() == 2 && strcasecmp(arg.c_str(), "RR") == 0)
 	{
-		fifoScheduling = false;
+		Config::getConfig()->fifoScheduling = false;
 		return true;
 	}
 	if(arg.length() == 4 && strcasecmp(arg.c_str(), "FIFO") == 0)
 	{
-		fifoScheduling = true;
+		Config::getConfig()->fifoScheduling = true;
 		return true;
 	}
 	return false;
@@ -41,11 +34,11 @@ bool setSchedulingPolicy(std::string arg)
 bool setProcessPriority()
 {
 	int rc = 0;
-	if(testnodeRT)
+	if(Config::getConfig()->testnodeRT)
 	{
-		rc += testnodePrioritySwitcher->switchToRealtimePriority();
+		rc += Config::getConfig()->testnodePrioritySwitcher->switchToRealtimePriority();
 	} else {
-		rc += testnodePrioritySwitcher->switchToNormalPriority();
+		rc += Config::getConfig()->testnodePrioritySwitcher->switchToNormalPriority();
 	}
 	return rc == 0;
 }
@@ -56,14 +49,14 @@ bool parseArgs(int argc, char* argv[])
 	{
 		return false;
 	}
-	loops = atoi(argv[1]);
-	timeout_us = atoi(argv[2]);
-	testnodeRT = argv[3][0] == '1';
+	Config::getConfig()->loops = atoi(argv[1]);
+	Config::getConfig()->timeout_us = atoi(argv[2]);
+	Config::getConfig()->testnodeRT = argv[3][0] == '1';
 	if(!(argv[3][0] == '0' || argv[3][0] == '1'))
 	{
 		return false;
 	}
-	if(testnodeRT)
+	if(Config::getConfig()->testnodeRT)
 	{
 		if(argc != 5)
 		{
@@ -85,7 +78,7 @@ int main(int argc, char* argv[])
 		printUsage();
 		return 1;
 	}
-	testnodePrioritySwitcher = new PrioritySwitcher(0, fifoScheduling);
+	Config::getConfig()->testnodePrioritySwitcher = new PrioritySwitcher(0, Config::getConfig()->fifoScheduling);
 	int x = 1;
 	char* y[1];
 	y[0] = argv[0];
@@ -95,7 +88,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 	ros::init(x, y, "Timer_tests");
-	nodeHandle = new ros::NodeHandle;
+	Config::getConfig()->nodeHandle = new ros::NodeHandle;
 	testing::InitGoogleTest(&x, y);
 	return RUN_ALL_TESTS();
 }

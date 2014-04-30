@@ -7,7 +7,6 @@
 **/
 
 #include "RosOneShotTimerTestsFixture.h"
-#include "main.h"
 
 TEST_F(RosOneShotTimerTests, MaxLatencySmallerThan400MicroSecond)
 {

@@ -15,10 +15,10 @@ add_library(rt_tests_support STATIC
    ../rt_tests_support/src/MeasurementDataEvaluator.cpp
 )
 
-add_executable(system_tests ./src/main.cpp ./src/SystemTests.cpp)
+add_executable(system_tests ./src/main.cpp ./src/Config.cpp ./src/SystemTests.cpp)
 target_link_libraries(system_tests gtest_static rt_tests_support ${catkin_LIBRARIES})
 
-add_executable(timer_tests ./src/main.cpp ./src/OneShotLatencyMeasurer.cpp ./src/RosOneShotTimerTestsFixture.cpp ./src/OneShotTimerTests.cpp)
+add_executable(timer_tests ./src/main.cpp ./src/Config.cpp ./src/OneShotLatencyMeasurer.cpp ./src/RosOneShotTimerTestsFixture.cpp ./src/OneShotTimerTests.cpp)
 target_link_libraries(timer_tests gtest_static rt_tests_support ${catkin_LIBRARIES})
 
 install(TARGETS system_tests timer_tests
