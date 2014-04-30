@@ -6,13 +6,17 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
+#include <stdlib.h>
 #include <rt_tests_support/MeasurementDataEvaluator.h>
 
-MeasurementDataEvaluator::MeasurementDataEvaluator(long* data, int dataSize) :
-	data(data), dataSize(dataSize),
+MeasurementDataEvaluator::MeasurementDataEvaluator(int dataSize) :
+	data((long*) malloc(sizeof(long) * dataSize)), dataSize(dataSize),
 	minValue(0), maxValue(0), avgValue(0)
 {
-	calcMinMaxAndAvg();
+	for(int i = 0; i < dataSize; i++)
+	{
+		data[i] = 0;
+	}
 }
 
 long MeasurementDataEvaluator::getMinValue()
@@ -40,7 +44,7 @@ int MeasurementDataEvaluator::getDataSize()
 	return dataSize;
 }
 
-void MeasurementDataEvaluator::calcMinMaxAndAvg()
+void MeasurementDataEvaluator::analyzeData()
 {
 	maxValue = data[0];
 	minValue = data[0];
@@ -62,4 +66,5 @@ void MeasurementDataEvaluator::calcMinMaxAndAvg()
 
 MeasurementDataEvaluator::~MeasurementDataEvaluator()
 {
+	delete data;
 }

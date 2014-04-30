@@ -11,12 +11,13 @@
 
 class MeasurementDataEvaluator {
 public:
-	MeasurementDataEvaluator(long* data, int dataSize);
+	MeasurementDataEvaluator(int dataSize);
 	long getMinValue();
 	long getAvgValue();
 	long getMaxValue();
 	long* getData();
 	int getDataSize();
+	void analyzeData();
 	~MeasurementDataEvaluator();
 private:
 	long* data;
@@ -26,7 +27,6 @@ private:
 	long long avgValue;
 	
 	MeasurementDataEvaluator();
-	void calcMinMaxAndAvg();
 };
 
 #endif //MEASUREMENTDATAEVALUATOR_H_

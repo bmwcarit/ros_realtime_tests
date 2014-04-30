@@ -8,7 +8,6 @@
 
 #include "OneShotLatencyMeasurer.h"
 
-#include <stdlib.h>
 #include <sys/mman.h>
 #include <rt_tests_support/Logger.h>
 #include <rt_tests_support/PlotDataFileCreator.h>
@@ -21,29 +20,22 @@ OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeou
 		timeoutSeconds(((double)timeoutNanoSeconds)/SEC_TO_NANOSEC_MULTIPLIER),
 		timeoutNanoseconds(timeoutSeconds * SEC_TO_NANOSEC_MULTIPLIER),
 		nodeHandle(nodeHandle),
-		latenciesUs((long*) malloc(sizeof(long)*loopLength)),
-		latenciesReportedUs((long*) malloc(sizeof(long)*loopLength)),
-		differenceUs((long*) malloc(sizeof(long)*loopLength)),
 		callbackCalled(false),
 		callbackTs(),
 		loopCounter(0),
 		lockMemory(lockMemory),
-		latencyData(0), reportedLatencyData(0), differenceData(0)
+		latencyData(new MeasurementDataEvaluator(loopLength)),
+		reportedLatencyData(new MeasurementDataEvaluator(loopLength)),
+		differenceData(new MeasurementDataEvaluator(loopLength))
 {
-	for(int i = 0; i < loopLength; i++)
-	{
-		latenciesUs[i] = 0;
-		latenciesReportedUs[i] = 0;
-		differenceUs[i] = 0;
-	}
 }
 
 void OneShotLatencyMeasurer::measure()
 {
 	measureOneshotTimerLatencies();
-	latencyData = new MeasurementDataEvaluator(latenciesUs, loopLength);
-	reportedLatencyData = new MeasurementDataEvaluator(latenciesReportedUs, loopLength);
-	differenceData = new MeasurementDataEvaluator(differenceUs, loopLength);
+	latencyData->analyzeData();
+	reportedLatencyData->analyzeData();
+	differenceData->analyzeData();
 }
 
 void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
@@ -70,8 +62,8 @@ void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
 		spinUntilCallbackCalled();
 		latencyTempNs = ((callbackTs.tv_sec - startTs.tv_sec) * SEC_TO_NANOSEC_MULTIPLIER) + (callbackTs.tv_nsec - startTs.tv_nsec);
 		latencyTempNs -= timeoutNanoseconds;
-		latenciesUs[loopCounter] = latencyTempNs/NANO_TO_MICRO_DIVISOR;
-		differenceUs[loopCounter] = latenciesReportedUs[loopCounter] - latenciesUs[loopCounter];
+		latencyData->getData()[loopCounter] = latencyTempNs/NANO_TO_MICRO_DIVISOR;
+		differenceData->getData()[loopCounter] = reportedLatencyData->getData()[loopCounter] - latencyData->getData()[loopCounter];
 	}
 	if(lockMemory)
 	{
@@ -140,7 +132,7 @@ void OneShotLatencyMeasurer::timerCallback(const ros::TimerEvent& te)
 {
 	clock_gettime(clock_id, &callbackTs);
 	long latencyReportedTemp = ((te.current_real.sec - te.current_expected.sec) * SEC_TO_NANOSEC_MULTIPLIER) + (te.current_real.nsec - te.current_expected.nsec);
-	latenciesReportedUs[loopCounter] = latencyReportedTemp/NANO_TO_MICRO_DIVISOR;
+	reportedLatencyData->getData()[loopCounter] = latencyReportedTemp/NANO_TO_MICRO_DIVISOR;
 	callbackCalled = true;
 }
 
@@ -155,9 +147,6 @@ void OneShotLatencyMeasurer::spinUntilCallbackCalled()
 
 OneShotLatencyMeasurer::~OneShotLatencyMeasurer()
 {
-	delete differenceUs;
-	delete latenciesReportedUs;
-	delete latenciesUs;
 	delete latencyData, reportedLatencyData, differenceData;
 }
 

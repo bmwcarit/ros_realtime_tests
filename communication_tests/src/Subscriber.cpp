@@ -16,14 +16,10 @@
 
 Subscriber::Subscriber(const std::string& topic, ros::NodeHandle* nodeHandle, int amountMessages) :
 	lastSeq(messageMissing), outOfOrderCounter(0),
-	latenciesUs((long*) malloc(sizeof(long) * amountMessages)),
 	amountMessages(amountMessages), nodeHandle(nodeHandle),
-	rosSubscriber(nodeHandle->subscribe(topic, 1000, &Subscriber::messageCallback, this))
+	rosSubscriber(nodeHandle->subscribe(topic, 1000, &Subscriber::messageCallback, this)),
+	measurementData(new MeasurementDataEvaluator(amountMessages))
 {
-	for(int i = 0; i < amountMessages; i++)
-	{
-		latenciesUs[i] = messageMissing;
-	}
 }
 
 void Subscriber::startMeasurement()
@@ -31,7 +27,7 @@ void Subscriber::startMeasurement()
 	lastSeq = messageMissing;
 	outOfOrderCounter = 0;
 	ros::spin();
-	measurementData = new MeasurementDataEvaluator(latenciesUs, amountMessages);
+	measurementData->analyzeData();
 }
 
 std::string Subscriber::getMeasurementSummary()
@@ -45,7 +41,7 @@ std::string Subscriber::getMeasurementSummary()
 		ss << "Missing messages: |";
 		for(int i = 0; i < amountMessages; i++)
 		{
-			if(latenciesUs[i] == messageMissing)
+			if(measurementData->getData()[i] == messageMissing)
 			{
 				ss << i << "|";
 				messagesMissing++;
@@ -120,7 +116,7 @@ void Subscriber::messageCallback(const communication_tests::timestamp_msg::Const
 {
 	struct timespec ts;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
-	latenciesUs[msg->seq] = ((ts.tv_sec - msg->sec) * 1000000000 + (ts.tv_nsec - msg->nsec))/NANO_TO_MICRO_DIVISOR;
+	measurementData->getData()[msg->seq] = ((ts.tv_sec - msg->sec) * 1000000000 + (ts.tv_nsec - msg->nsec))/NANO_TO_MICRO_DIVISOR;
 	if((int) msg->seq < lastSeq)
 	{
 		outOfOrderCounter++;
@@ -135,5 +131,4 @@ void Subscriber::messageCallback(const communication_tests::timestamp_msg::Const
 Subscriber::~Subscriber()
 {
 	delete measurementData;
-	delete latenciesUs;
 }

@@ -33,16 +33,13 @@ private:
 	const double timeoutSeconds;
 	const long timeoutNanoseconds;
 	ros::NodeHandle* nodeHandle;
-	long* latenciesUs;
-	long* latenciesReportedUs;
-	long* differenceUs; //reported - measured
 	bool callbackCalled;
 	struct timespec callbackTs;
 	int loopCounter;
 	const bool lockMemory;
 	MeasurementDataEvaluator* latencyData;
 	MeasurementDataEvaluator* reportedLatencyData;
-	MeasurementDataEvaluator* differenceData;
+	MeasurementDataEvaluator* differenceData; //reported - measured
 
 	void saveGnuplotData(std::string filename, MeasurementDataEvaluator* plotData);
 	void measureOneshotTimerLatencies();

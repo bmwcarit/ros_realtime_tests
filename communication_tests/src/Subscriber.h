@@ -27,7 +27,6 @@ private:
 	Subscriber();
 	int lastSeq;
 	int outOfOrderCounter;
-	long* latenciesUs;
 	const int amountMessages;
 	const static int messageMissing = -1;
 	ros::NodeHandle* nodeHandle;
