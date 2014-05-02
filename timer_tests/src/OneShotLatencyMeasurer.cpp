@@ -8,7 +8,9 @@
 
 #include "OneShotLatencyMeasurer.h"
 
+#include "Config.h"
 #include <sys/mman.h>
+#include <sys/utsname.h>
 #include <rt_tests_support/Logger.h>
 #include <rt_tests_support/PlotDataFileCreator.h>
 
@@ -116,16 +118,48 @@ void OneShotLatencyMeasurer::saveDiffGnuplotData(std::string filename)
 	saveGnuplotData(filename, differenceData);
 }
 
-void OneShotLatencyMeasurer::saveGnuplotData(std::string filename, MeasurementDataEvaluator* plotData)
+void OneShotLatencyMeasurer::saveGnuplotData(std::string filename, MeasurementDataEvaluator* measurementData)
 {
+	struct utsname unameResponse;
+	int rc = uname(&unameResponse);
+	std::stringstream machineName;
+	if(rc == 0)
+	{
+		machineName << unameResponse.nodename << " " << unameResponse.sysname << " " << unameResponse.release;
+	}
+	Config* config = Config::getConfig();
 	std::stringstream ss;
+	ss << "set title \"timer_tests plot " << machineName.str() << " -  " << loopLength << " samples  ";
+	if(config->testnodeRT)
+	{
+		ss << "test node RT ";
+		if(config->fifoScheduling)
+		{
+			ss << "FIFO";
+		} else {
+			ss << "RR";
+		}
+	}
+	ss << "\"" << std::endl;
+	ss << "set xlabel \"Latency in micro seconds - MIN:  ";
+	ss << measurementData->getMinValue() << "us  AVG: " << measurementData->getAvgValue() << "us MAX: " << measurementData->getMaxValue() << "us\"" << std::endl;
+	ss << "set ylabel \"Number of latency samples\"" << std::endl << "set yrange [0.7:]" << std::endl << "set logscale y" << std::endl;
+	int xrange = measurementData->getMaxValue() + 50;
+	if(measurementData->getMaxValue() < 400)
+	{
+		xrange = 400;
+	}
+	ss << "set xrange [1:" << xrange << "]" << std::endl << "set xtics add(500, 1000)" << std::endl;
+	ss << "set terminal jpeg size 1920,1080" << std::endl;
+	ss << "set output \"" << filename << ".jpg\"" << std::endl;
+	ss << "plot \"-\" u 1:2 t 'Latency_Occurrence' w steps" << std::endl;
 	ss << "# Plot data for gnuplot" << std::endl;
 	ss << "# Timeout: " << (int) timeoutNanoseconds/1000 << "us, LoopLength: " << loopLength << std::endl;
 	ss << "# Measured:\t MIN: " << latencyData->getMinValue() << "us \tAVG:  " << latencyData->getAvgValue() << "us \tMAX:  " << latencyData->getMaxValue() << "us" << std::endl;
 	ss << "# Reported:\t MIN: " << reportedLatencyData->getMinValue() << "us \tAVG:  " << reportedLatencyData->getAvgValue() << "us \tMAX:  " << reportedLatencyData->getMaxValue() << "us" << std::endl;
 	ss << "# Difference:\t MIN: " << differenceData->getMinValue() << "us\tAVG: " << differenceData->getAvgValue() << "us\tMAX: " << differenceData->getMaxValue() << "us" << std::endl;
 	PlotDataFileCreator plotter;
-	plotter.createPlottableDatafile(filename, ss.str(), plotData);
+	plotter.createPlottableDatafile(filename+".log", ss.str(), measurementData);
 }
 
 void OneShotLatencyMeasurer::timerCallback(const ros::TimerEvent& te)

@@ -24,9 +24,9 @@ void RosOneShotTimerTests::SetUpTestCase()
 	measurementData = measurer.getMeasuredLatencyData();
 	measurer.printMeasurementResults();
 	std::string filename(Config::getConfig()->getFilename());
-	measurer.saveMeasuredLatencyGnuplotData(filename + "-measured.log");
-	measurer.saveReportedLatencyGnuplotData(filename + "-reported.log");
-	measurer.saveDiffGnuplotData(filename + "-diff.log");
+	measurer.saveMeasuredLatencyGnuplotData(filename + "-measured");
+	measurer.saveReportedLatencyGnuplotData(filename + "-reported");
+	measurer.saveDiffGnuplotData(filename + "-diff");
 	setupSucceeded = true;
 }
 
