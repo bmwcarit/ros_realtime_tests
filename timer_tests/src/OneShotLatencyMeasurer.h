@@ -45,6 +45,7 @@ private:
 	void measureOneshotTimerLatencies();
 	void timerCallback(const ros::TimerEvent&);
 	void spinUntilCallbackCalled();
+	std::string getMeasurementSummary();
 };
 
 #endif //ONESHOTLATENCYMEASURER_H_

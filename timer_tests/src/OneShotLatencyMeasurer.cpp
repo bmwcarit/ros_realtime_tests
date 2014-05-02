@@ -88,20 +88,31 @@ MeasurementDataEvaluator* OneShotLatencyMeasurer::getLatencyDifferenceData()
 	return differenceData;
 }
 
-void OneShotLatencyMeasurer::printMeasurementResults()
+std::string OneShotLatencyMeasurer::getMeasurementSummary()
 {
 	std::stringstream ss;
-	ss << "Measurement results with a loop length of " << loopLength << " and a timeout of " << (int) (timeoutNanoseconds/1000) << " us:";
-	Logger::INFO(ss.str().c_str());
-	ss.str("");
+	ss << "Measurement results with a loop length of " << loopLength << " and a timeout of " << (int) (timeoutNanoseconds/1000) << " us:" << std::endl;
 	ss <<"Measured:\tMIN:  " << latencyData->getMinValue() << "us \tAVG:  " << latencyData->getAvgValue() << "us \tMAX:  " << latencyData->getMaxValue() << "us";
-	Logger::INFO(ss.str().c_str());
-	ss.str("");
-	ss <<"Reported:\tMIN:  " << reportedLatencyData->getMinValue() << "us \tAVG:  " << reportedLatencyData->getAvgValue() << "us \tMAX:  " << reportedLatencyData->getMaxValue() << "us";
-	Logger::INFO(ss.str().c_str());
-	ss.str("");
+	ss << std::endl;
+	ss <<"Reported:\tMIN:  " << reportedLatencyData->getMinValue() << "us \tAVG:  " << reportedLatencyData->getAvgValue() << "us \tMAX:  ";
+	ss << reportedLatencyData->getMaxValue() << "us" << std::endl;
 	ss << "Difference:\tMIN: " << differenceData->getMinValue() << "us\tAVG: " << differenceData->getAvgValue() << "us\tMAX: " << differenceData->getMaxValue() << "us";
-	Logger::INFO(ss.str().c_str());
+	ss << std::endl;
+	return ss.str();
+}
+
+void OneShotLatencyMeasurer::printMeasurementResults()
+{
+	std::stringstream measurementSummary(getMeasurementSummary());
+	while(!measurementSummary.eof() && !measurementSummary.fail())
+	{
+		char line[512];
+		measurementSummary.getline(line, 512);
+		if(line[0] != '\0')
+		{
+			Logger::INFO(line);
+		}
+	}
 }
 
 void OneShotLatencyMeasurer::saveMeasuredLatencyGnuplotData(std::string filename)
@@ -154,10 +165,16 @@ void OneShotLatencyMeasurer::saveGnuplotData(std::string filename, MeasurementDa
 	ss << "set output \"" << filename << ".jpg\"" << std::endl;
 	ss << "plot \"-\" u 1:2 t 'Latency_Occurrence' w steps" << std::endl;
 	ss << "# Plot data for gnuplot" << std::endl;
-	ss << "# Timeout: " << (int) timeoutNanoseconds/1000 << "us, LoopLength: " << loopLength << std::endl;
-	ss << "# Measured:\t MIN: " << latencyData->getMinValue() << "us \tAVG:  " << latencyData->getAvgValue() << "us \tMAX:  " << latencyData->getMaxValue() << "us" << std::endl;
-	ss << "# Reported:\t MIN: " << reportedLatencyData->getMinValue() << "us \tAVG:  " << reportedLatencyData->getAvgValue() << "us \tMAX:  " << reportedLatencyData->getMaxValue() << "us" << std::endl;
-	ss << "# Difference:\t MIN: " << differenceData->getMinValue() << "us\tAVG: " << differenceData->getAvgValue() << "us\tMAX: " << differenceData->getMaxValue() << "us" << std::endl;
+	std::stringstream measurementSummary(getMeasurementSummary());
+	while(!measurementSummary.eof() && !measurementSummary.fail())
+	{
+		char line[512];
+		measurementSummary.getline(line, 512);
+		if(line[0] != '\0')
+		{
+			ss << "# " << line << std::endl;
+		}
+	}
 	PlotDataFileCreator plotter;
 	plotter.createPlottableDatafile(filename+".log", ss.str(), measurementData);
 }
