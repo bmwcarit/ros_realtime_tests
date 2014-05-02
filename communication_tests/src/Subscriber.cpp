@@ -84,7 +84,7 @@ void Subscriber::saveGnuplotData(std::string filename)
 		}
 	}
 	PlotDataFileCreator plotter;
-	plotter.createPlottableDatafile(filename, ss.str(), measurementData);
+	plotter.createPlottableDatafile(filename+".log", ss.str(), measurementData);
 }
 
 void Subscriber::printMeasurementResults()

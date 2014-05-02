@@ -18,12 +18,13 @@ add_library(rt_tests_support STATIC
    ../rt_tests_support/src/MeasurementDataEvaluator.cpp
 )
 
-add_executable(communication_tests_publisher ./src/ct_publisher_node.cpp ./src/Publisher.cpp)
+add_executable(communication_tests_publisher ./src/ct_publisher_node.cpp ./src/Publisher.cpp ./src/Config.cpp)
 target_link_libraries(communication_tests_publisher gtest_static rt_tests_support ${catkin_LIBRARIES})
 
 add_executable(communication_tests_subscriber
-   ./src/ct_subscriber_node.cpp
+   ./src/Config.cpp
    ./src/Subscriber.cpp
+   ./src/ct_subscriber_node.cpp
    ./src/PubSubLatencyTests.cpp
    ./src/PubSubLatencyTestsFixture.cpp
 )

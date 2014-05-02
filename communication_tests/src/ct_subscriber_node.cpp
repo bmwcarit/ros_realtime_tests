@@ -6,13 +6,10 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
+#include "Config.h"
 #include "ros/ros.h"
-#include "ct_subscriber_node.h"
 #include <gtest/gtest.h>
 #include <rt_tests_support/Logger.h>
-
-int pubFrequency;
-int amountMessages;
 
 void printUsage()
 {
@@ -26,12 +23,13 @@ int main(int argc, char* argv[])
 		printUsage();
 		return 1;
 	}
-	pubFrequency = atoi(argv[2]);
-	amountMessages = atoi(argv[1]);
 	int x = 1;
 	char* y[1];
 	y[0] = argv[0];
 	ros::init(x, y, "communication_tests_subscriber");
+	Config* config = Config::getConfig();
+	config->pubFrequency = atoi(argv[2]);
+	config->amountMessages = atoi(argv[1]);
 	testing::InitGoogleTest(&x, y);
 	return RUN_ALL_TESTS();
 }

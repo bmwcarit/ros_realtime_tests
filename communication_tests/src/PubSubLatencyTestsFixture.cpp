@@ -6,7 +6,7 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
-#include "ct_subscriber_node.h"
+#include "Config.h"
 #include "PubSubLatencyTestsFixture.h"
 #include <sstream>
 
@@ -15,13 +15,11 @@ MeasurementDataEvaluator* PubSubLatencyTests::measuredData;
 
 void PubSubLatencyTests::SetUpTestCase()
 {
-	subscriber = new Subscriber("communication_tests", new ros::NodeHandle(), amountMessages);
+	subscriber = new Subscriber("communication_tests", new ros::NodeHandle(), Config::getConfig()->amountMessages);
 	subscriber->startMeasurement();
 	subscriber->printMeasurementResults();
 	measuredData = subscriber->getMeasurementData();
-	std::stringstream filename;
-	filename << "ct_gnuplot_l" << amountMessages << "_fq" << pubFrequency << ".log";
-	subscriber->saveGnuplotData(filename.str());
+	subscriber->saveGnuplotData(Config::getConfig()->getFilename());
 }
 
 void PubSubLatencyTests::TearDownTestCase()

@@ -6,6 +6,7 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
+#include "Config.h"
 #include "ros/ros.h"
 #include "Publisher.h"
 #include <rt_tests_support/Logger.h>
@@ -26,9 +27,13 @@ int main(int argc, char* argv[])
 	char* y[1];
 	y[0] = argv[0];
 	ros::init(x, y, "communication_tests_publisher");
-	Publisher publisher("communication_tests", new ros::NodeHandle());
+	Config* config = Config::getConfig();
+	config->nodeHandle = new ros::NodeHandle();
+	config->pubFrequency = atoi(argv[2]);
+	config->amountMessages = atoi(argv[1]);
+	Publisher publisher("communication_tests", config->nodeHandle);
 	sleep(2);
-	publisher.publish(atoi(argv[2]), atoi(argv[1]));
+	publisher.publish(config->pubFrequency, config->amountMessages);
 	Logger::INFO("Done publishing...");
 	return 0;
 }
