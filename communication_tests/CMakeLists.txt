@@ -8,9 +8,8 @@ generate_messages(DEPENDENCIES std_msgs)
 
 catkin_package(CATKIN_DEPENDS roscpp std_msgs message_runtime)
 
-include_directories(${catkin_INCLUDE_DIRS} ../gtest/include ../gtest ../rt_tests_support/include)
+include_directories(${catkin_INCLUDE_DIRS} ../rt_tests_support/include)
 
-add_library(gtest_static STATIC ../gtest/src/gtest-all.cc)
 add_library(rt_tests_support STATIC
    ../rt_tests_support/src/Logger.cpp
    ../rt_tests_support/src/PrioritySwitcher.cpp
@@ -19,16 +18,14 @@ add_library(rt_tests_support STATIC
 )
 
 add_executable(communication_tests_publisher ./src/ct_publisher_node.cpp ./src/Publisher.cpp ./src/Config.cpp)
-target_link_libraries(communication_tests_publisher gtest_static rt_tests_support ${catkin_LIBRARIES})
+target_link_libraries(communication_tests_publisher rt_tests_support ${catkin_LIBRARIES})
 
 add_executable(communication_tests_subscriber
    ./src/Config.cpp
    ./src/Subscriber.cpp
    ./src/ct_subscriber_node.cpp
-   ./src/PubSubLatencyTests.cpp
-   ./src/PubSubLatencyTestsFixture.cpp
 )
-target_link_libraries(communication_tests_subscriber gtest_static rt_tests_support ${catkin_LIBRARIES})
+target_link_libraries(communication_tests_subscriber rt_tests_support ${catkin_LIBRARIES})
 
 install(TARGETS communication_tests_publisher communication_tests_subscriber
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

@@ -8,7 +8,7 @@
 
 #include "Config.h"
 #include "ros/ros.h"
-#include <gtest/gtest.h>
+#include "Subscriber.h"
 #include <rt_tests_support/Logger.h>
 
 void printUsage()
@@ -30,6 +30,9 @@ int main(int argc, char* argv[])
 	Config* config = Config::getConfig();
 	config->pubFrequency = atoi(argv[2]);
 	config->amountMessages = atoi(argv[1]);
-	testing::InitGoogleTest(&x, y);
-	return RUN_ALL_TESTS();
+	Subscriber subscriber("communication_tests", new ros::NodeHandle(), config->amountMessages);
+	subscriber.startMeasurement();
+	subscriber.printMeasurementResults();
+	subscriber.saveGnuplotData(config->getFilename());
+	return 0;
 }
