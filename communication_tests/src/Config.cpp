@@ -7,18 +7,66 @@
 **/
 
 #include "Config.h"
+#include "ros/ros.h"
 #include <sstream>
+#include <rt_tests_support/Logger.h>
 
 Config* Config::configInstance = 0;
 
-Config::Config() : nodeHandle(0), pubFrequency(0), amountMessages(0)
+Config::Config() : nodeHandle(0), rtPrio(false), pubFrequency(0), amountMessages(0)
 {
+}
+
+void Config::printUsage()
+{
+	Logger::ERROR("Usage: communication_tests_publisher <amount_messages> <pub_frequency(Hz)> [<'rtPrio' + 'FIFO'/'RR'>]");
+}
+
+bool Config::parseArgs(int argc, char* argv[])
+{
+	if(argc != 3 && argc != 5)
+	{
+		return false;
+	}
+	pubFrequency = atoi(argv[2]);
+	amountMessages = atoi(argv[1]);
+	if(argc == 5)
+	{
+		std::string rtPrioString(argv[3]);
+		if(strcasecmp(rtPrioString.c_str(), "rtPrio") != 0)
+		{
+			return false;
+		}
+		rtPrio = true;
+		std::string schedPolicy(argv[4]);
+		if(strcasecmp(schedPolicy.c_str(), "RR") == 0)
+		{
+			fifoScheduling = false;
+		} else if(strcasecmp(schedPolicy.c_str(), "FIFO") == 0) 
+		{
+			Config::getConfig()->fifoScheduling = true;
+		} else {
+			return false;
+		}
+
+	}
+	return true;
 }
 
 std::string Config::getFilename()
 {
 	std::stringstream filename;
 	filename << "ct_gnuplot_l" << amountMessages << "_fq" << pubFrequency;
+	if(rtPrio)
+	{
+		filename << "-tnRT";
+		if(fifoScheduling)
+		{
+			filename << "FIFO";
+		} else {
+			filename << "RR";
+		}
+	}
 	return filename.str();
 }
 

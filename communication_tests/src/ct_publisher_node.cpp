@@ -10,27 +10,30 @@
 #include "ros/ros.h"
 #include "Publisher.h"
 #include <rt_tests_support/Logger.h>
-
-void printUsage()
-{
-	Logger::ERROR("Usage: communication_tests_publisher <amount_messages> <pub_frequency(Hz)>");
-}
+#include <rt_tests_support/PrioritySwitcher.h>
 
 int main(int argc, char* argv[])
 {
-	if(argc != 3)
+	Config* config = Config::getConfig();
+	if(!config->parseArgs(argc, argv))
 	{
-		printUsage();
+		config->printUsage();
 		return 1;
+	}
+	if(config->rtPrio)
+	{
+		PrioritySwitcher prioSwitcher(config->fifoScheduling);
+		if(prioSwitcher.switchToRealtimePriority() != 0)
+		{
+			Logger::ERROR("Switching to realtime priority failed, maybe not running as root?");
+			return 1;
+		}
 	}
 	int x = 1;
 	char* y[1];
 	y[0] = argv[0];
 	ros::init(x, y, "communication_tests_publisher");
-	Config* config = Config::getConfig();
 	config->nodeHandle = new ros::NodeHandle();
-	config->pubFrequency = atoi(argv[2]);
-	config->amountMessages = atoi(argv[1]);
 	Publisher publisher("communication_tests", config->nodeHandle);
 	sleep(2);
 	publisher.publish(config->pubFrequency, config->amountMessages);
