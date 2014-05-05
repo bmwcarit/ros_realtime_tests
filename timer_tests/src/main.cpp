@@ -8,7 +8,7 @@
 
 #include "Config.h"
 #include "ros/ros.h"
-#include <gtest/gtest.h>
+#include "OneShotLatencyMeasurer.h"
 #include <rt_tests_support/Logger.h>
 
 void printUsage()
@@ -78,7 +78,8 @@ int main(int argc, char* argv[])
 		printUsage();
 		return 1;
 	}
-	Config::getConfig()->testnodePrioritySwitcher = new PrioritySwitcher(0, Config::getConfig()->fifoScheduling);
+	Config* config = Config::getConfig();
+	config->testnodePrioritySwitcher = new PrioritySwitcher(0, config->fifoScheduling);
 	int x = 1;
 	char* y[1];
 	y[0] = argv[0];
@@ -88,8 +89,12 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 	ros::init(x, y, "Timer_tests");
-	Config::getConfig()->nodeHandle = new ros::NodeHandle;
-	testing::InitGoogleTest(&x, y);
-	return RUN_ALL_TESTS();
+	config->nodeHandle = new ros::NodeHandle;
+	Logger::INFO("Performing ROS Timer latency measurements...");
+	OneShotLatencyMeasurer measurer(config->loops, config->timeout_us*1000, config->nodeHandle, config->testnodeRT);
+	measurer.measure();
+	measurer.printMeasurementResults();
+	measurer.saveMeasuredLatencyGnuplotData(config->getFilename());
+	return 0;
 }
 
