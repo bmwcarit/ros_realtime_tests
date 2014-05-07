@@ -19,6 +19,7 @@ public:
 	void printUsage();
 	bool parseArgs(int argc, char* argv[]);
 	std::string getFilename();
+	std::string getTitle();
 	ros::NodeHandle* nodeHandle;
 	bool rtPrio;
 	bool fifoScheduling;

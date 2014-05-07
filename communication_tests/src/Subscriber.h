@@ -9,6 +9,7 @@
 #ifndef SUBSCRIBER_H_
 #define SUBSCRIBER_H_
 
+#include "Config.h"
 #include "ros/ros.h"
 #include <string>
 #include <communication_tests/timestamp_msg.h>
@@ -16,20 +17,20 @@
 
 class Subscriber{
 public:
-	Subscriber(const std::string& topic, ros::NodeHandle* nodeHandle, int amountMessages);
+	Subscriber(const std::string& topic);
 	void startMeasurement();
 	void printMeasurementResults();
-	void saveGnuplotData(std::string filename);
+	void saveGnuplotData();
 	int getAmountMessagesOutOfOrder();
 	MeasurementDataEvaluator* getMeasurementData();
 	~Subscriber();
 private:
 	Subscriber();
+	Config* config;
 	int lastSeq;
 	int outOfOrderCounter;
 	const int amountMessages;
 	const static int messageMissing = -1;
-	ros::NodeHandle* nodeHandle;
 	ros::Subscriber rosSubscriber;
 	MeasurementDataEvaluator* measurementData;
 	std::string getMeasurementSummary();

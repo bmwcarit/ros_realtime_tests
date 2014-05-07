@@ -6,25 +6,27 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
+#include "Config.h"
 #include "Publisher.h"
 #include <rt_tests_support/Logger.h>
 #include <communication_tests/timestamp_msg.h>
 
-Publisher::Publisher(const std::string& topic, ros::NodeHandle* nodeHandle) :
-	nodeHandle(nodeHandle),
+Publisher::Publisher(const std::string& topic) :
+	nodeHandle(Config::getConfig()->nodeHandle),
 	rosPublisher(nodeHandle->advertise<communication_tests::timestamp_msg>(topic, 1000))
 {
 }
 
-void Publisher::publish(int frequency, int amount)
+void Publisher::publish()
 {
-	ros::Rate publishFrequency(frequency);
+	Config* config = Config::getConfig();
+	ros::Rate publishFrequency(config->pubFrequency);
 	int sequenceNumber = 0;
-	for(int i = 0; i < amount; i++)
+	for(int i = 0; i < config->amountMessages; i++)
 	{
 		communication_tests::timestamp_msg message;
 		message.seq = i;
-		message.last_msg = (i == (amount-1));
+		message.last_msg = (i == (config->amountMessages-1));
 		struct timespec ts;
 		clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
 		message.sec = ts.tv_sec;

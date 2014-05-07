@@ -9,17 +9,42 @@
 #include "Config.h"
 #include "ros/ros.h"
 #include <sstream>
+#include <sys/utsname.h>
 #include <rt_tests_support/Logger.h>
 
 Config* Config::configInstance = 0;
 
-Config::Config() : nodeHandle(0), rtPrio(false), pubFrequency(0), amountMessages(0)
+Config::Config() : nodeHandle(0), rtPrio(false), fifoScheduling(false), pubFrequency(0), amountMessages(0)
 {
 }
 
 void Config::printUsage()
 {
 	Logger::ERROR("Usage: communication_tests_publisher <amount_messages> <pub_frequency(Hz)> [<'rtPrio' + 'FIFO'/'RR'>]");
+}
+
+std::string Config::getTitle()
+{
+	struct utsname unameResponse;
+	int rc = uname(&unameResponse);
+	std::stringstream machineName;
+	if(rc == 0)
+	{
+		machineName << unameResponse.nodename << " " << unameResponse.sysname << " " << unameResponse.release;
+	}
+	std::stringstream ss;
+	ss << "communication_tests plot " << machineName.str() << " -  " << amountMessages << " samples  ";
+	if(rtPrio)
+	{
+		ss << "test node RT ";
+		if(fifoScheduling)
+		{
+			ss << "FIFO";
+		} else {
+			ss << "RR";
+		}
+	}
+	return ss.str();
 }
 
 bool Config::parseArgs(int argc, char* argv[])

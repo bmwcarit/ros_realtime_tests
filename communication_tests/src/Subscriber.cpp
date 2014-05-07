@@ -8,17 +8,16 @@
 
 #include "Subscriber.h"
 #include <sstream>
-#include <sys/utsname.h>
 #include <rt_tests_support/Logger.h>
 #include <rt_tests_support/PlotDataFileCreator.h>
 
 #define NANO_TO_MICRO_DIVISOR 1000
 
-Subscriber::Subscriber(const std::string& topic, ros::NodeHandle* nodeHandle, int amountMessages) :
-	lastSeq(messageMissing), outOfOrderCounter(0),
-	amountMessages(amountMessages), nodeHandle(nodeHandle),
-	rosSubscriber(nodeHandle->subscribe(topic, 1000, &Subscriber::messageCallback, this)),
-	measurementData(new MeasurementDataEvaluator(amountMessages))
+Subscriber::Subscriber(const std::string& topic) :
+	config(Config::getConfig()),
+	lastSeq(messageMissing), outOfOrderCounter(0), amountMessages(config->amountMessages),
+	rosSubscriber(config->nodeHandle->subscribe(topic, 1000, &Subscriber::messageCallback, this)),
+	measurementData(new MeasurementDataEvaluator(config->amountMessages))
 {
 }
 
@@ -33,13 +32,13 @@ void Subscriber::startMeasurement()
 std::string Subscriber::getMeasurementSummary()
 {
 	std::stringstream ss;
-	ss << "Amount messages: " << amountMessages << "; Messages out of order: " << getAmountMessagesOutOfOrder() << std::endl;
+	ss << "Amount messages: " << config->amountMessages << "; Messages out of order: " << getAmountMessagesOutOfOrder() << std::endl;
 	ss << "MIN: " << measurementData->getMinValue() << "us\tAVG: " << measurementData->getAvgValue() << "us\tMAX: " << measurementData->getMaxValue() << "us" << std::endl;
 	if(measurementData->getMinValue() == messageMissing)
 	{
 		int messagesMissing = 0;
 		ss << "Missing messages: |";
-		for(int i = 0; i < amountMessages; i++)
+		for(int i = 0; i < config->amountMessages; i++)
 		{
 			if(measurementData->getData()[i] == messageMissing)
 			{
@@ -53,18 +52,12 @@ std::string Subscriber::getMeasurementSummary()
 	return ss.str();
 }
 
-void Subscriber::saveGnuplotData(std::string filename)
+void Subscriber::saveGnuplotData()
 {
-	struct utsname unameResponse;
-	int rc = uname(&unameResponse);
-	std::stringstream machineName;
-	if(rc == 0)
-	{
-		machineName << unameResponse.nodename << " " << unameResponse.sysname << " " << unameResponse.release;
-	}
+	std::string filename = config->getFilename();
 	std::stringstream measurementSummary(getMeasurementSummary());
 	std::stringstream ss;
-	ss << "set title \"communication_tests plot " << machineName.str() << " -  " << amountMessages << " samples  \"" << std::endl;
+	ss << "set title \"" << config->getTitle() << "\"" << std::endl;
 	ss << "set xlabel \"Latency in micro seconds - MIN:  ";
 	ss << measurementData->getMinValue() << "us  AVG: " << measurementData->getAvgValue() << "us MAX: " << measurementData->getMaxValue() << "us\"" << std::endl;
 	ss << "set ylabel \"Number of latency samples\"" << std::endl << "set yrange [0.7:]" << std::endl << "set logscale y" << std::endl;

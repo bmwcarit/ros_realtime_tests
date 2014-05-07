@@ -34,9 +34,9 @@ int main(int argc, char* argv[])
 	y[0] = argv[0];
 	ros::init(x, y, "communication_tests_subscriber");
 	config->nodeHandle = new ros::NodeHandle();
-	Subscriber subscriber("communication_tests", config->nodeHandle, config->amountMessages);
+	Subscriber subscriber("communication_tests");
 	subscriber.startMeasurement();
 	subscriber.printMeasurementResults();
-	subscriber.saveGnuplotData(config->getFilename());
+	subscriber.saveGnuplotData();
 	return 0;
 }

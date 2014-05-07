@@ -34,9 +34,9 @@ int main(int argc, char* argv[])
 	y[0] = argv[0];
 	ros::init(x, y, "communication_tests_publisher");
 	config->nodeHandle = new ros::NodeHandle();
-	Publisher publisher("communication_tests", config->nodeHandle);
+	Publisher publisher("communication_tests");
 	sleep(2);
-	publisher.publish(config->pubFrequency, config->amountMessages);
+	publisher.publish();
 	Logger::INFO("Done publishing...");
 	return 0;
 }

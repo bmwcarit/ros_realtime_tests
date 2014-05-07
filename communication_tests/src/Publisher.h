@@ -14,8 +14,8 @@
 
 class Publisher {
 public:
-	Publisher(const std::string& topic, ros::NodeHandle* nodeHandle);
-	void publish(int frequency, int amount);
+	Publisher(const std::string& topic);
+	void publish();
 	~Publisher();
 private:
 	Publisher();
