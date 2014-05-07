@@ -16,6 +16,7 @@
 class Config {
 public:
 	static Config* getConfig();
+	std::string getTitle();
 	std::string getFilename();
 	ros::NodeHandle* nodeHandle;
 	PrioritySwitcher* testnodePrioritySwitcher;

@@ -8,6 +8,7 @@
 
 #include "Config.h"
 #include <sstream>
+#include <sys/utsname.h>
 
 Config* Config::configInstance = 0;
 
@@ -19,6 +20,30 @@ Config::Config() :
 	testnodeRT(false),
 	fifoScheduling(false)
 {
+}
+
+std::string Config::getTitle()
+{
+	struct utsname unameResponse;
+	int rc = uname(&unameResponse);
+	std::stringstream machineName;
+	if(rc == 0)
+	{
+		machineName << unameResponse.nodename << " " << unameResponse.sysname << " " << unameResponse.release;
+	}
+	std::stringstream ss;
+	ss << "timer_tests plot " << machineName.str() << " -  " << loops << " samples  ";
+	if(testnodeRT)
+	{
+		ss << "test node RT ";
+		if(fifoScheduling)
+		{
+			ss << "FIFO";
+		} else {
+			ss << "RR";
+		}
+	}
+	return ss.str();
 }
 
 std::string Config::getFilename()

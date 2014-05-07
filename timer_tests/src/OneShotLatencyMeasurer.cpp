@@ -8,24 +8,22 @@
 
 #include "OneShotLatencyMeasurer.h"
 
-#include "Config.h"
 #include <sys/mman.h>
-#include <sys/utsname.h>
 #include <rt_tests_support/Logger.h>
 #include <rt_tests_support/PlotDataFileCreator.h>
 
 #define NANO_TO_MICRO_DIVISOR 1000
 #define SEC_TO_NANOSEC_MULTIPLIER 1000000000
 
-OneShotLatencyMeasurer::OneShotLatencyMeasurer(const int loopLength, long timeoutNanoSeconds, ros::NodeHandle* nodeHandle, bool lockMemory) :
-		loopLength(loopLength),
-		timeoutSeconds(((double)timeoutNanoSeconds)/SEC_TO_NANOSEC_MULTIPLIER),
-		timeoutNanoseconds(timeoutSeconds * SEC_TO_NANOSEC_MULTIPLIER),
-		nodeHandle(nodeHandle),
+OneShotLatencyMeasurer::OneShotLatencyMeasurer(Config* config) :
+		loopLength(config->loops),
+		timeoutNanoseconds(config->timeout_us*1000),
+		timeoutSeconds(((double)timeoutNanoseconds)/SEC_TO_NANOSEC_MULTIPLIER),
+		nodeHandle(config->nodeHandle),
 		callbackCalled(false),
 		callbackTs(),
 		loopCounter(0),
-		lockMemory(lockMemory),
+		lockMemory(config->testnodeRT),
 		latencyData(new MeasurementDataEvaluator(loopLength)),
 		reportedLatencyData(new MeasurementDataEvaluator(loopLength)),
 		differenceData(new MeasurementDataEvaluator(loopLength))
@@ -115,43 +113,26 @@ void OneShotLatencyMeasurer::printMeasurementResults()
 	}
 }
 
-void OneShotLatencyMeasurer::saveMeasuredLatencyGnuplotData(std::string filename)
+void OneShotLatencyMeasurer::saveMeasuredLatencyGnuplotData()
 {
-	saveGnuplotData(filename, latencyData);
+	saveGnuplotData(Config::getConfig()->getFilename()+"-measured", latencyData);
 }
 
-void OneShotLatencyMeasurer::saveReportedLatencyGnuplotData(std::string filename)
+void OneShotLatencyMeasurer::saveReportedLatencyGnuplotData()
 {
-	saveGnuplotData(filename, reportedLatencyData);
+	saveGnuplotData(Config::getConfig()->getFilename()+"-reported", reportedLatencyData);
 }
-void OneShotLatencyMeasurer::saveDiffGnuplotData(std::string filename)
+void OneShotLatencyMeasurer::saveDiffGnuplotData()
 {
-	saveGnuplotData(filename, differenceData);
+	saveGnuplotData(Config::getConfig()->getFilename()+"-diff", differenceData);
 }
 
 void OneShotLatencyMeasurer::saveGnuplotData(std::string filename, MeasurementDataEvaluator* measurementData)
 {
-	struct utsname unameResponse;
-	int rc = uname(&unameResponse);
-	std::stringstream machineName;
-	if(rc == 0)
-	{
-		machineName << unameResponse.nodename << " " << unameResponse.sysname << " " << unameResponse.release;
-	}
+	
 	Config* config = Config::getConfig();
 	std::stringstream ss;
-	ss << "set title \"timer_tests plot " << machineName.str() << " -  " << loopLength << " samples  ";
-	if(config->testnodeRT)
-	{
-		ss << "test node RT ";
-		if(config->fifoScheduling)
-		{
-			ss << "FIFO";
-		} else {
-			ss << "RR";
-		}
-	}
-	ss << "\"" << std::endl;
+	ss << "set title \"" << config-> getTitle() << "\"" << std::endl;
 	ss << "set xlabel \"Latency in micro seconds - MIN:  ";
 	ss << measurementData->getMinValue() << "us  AVG: " << measurementData->getAvgValue() << "us MAX: " << measurementData->getMaxValue() << "us\"" << std::endl;
 	ss << "set ylabel \"Number of latency samples\"" << std::endl << "set yrange [0.7:]" << std::endl << "set logscale y" << std::endl;

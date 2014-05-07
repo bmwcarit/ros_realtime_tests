@@ -9,6 +9,7 @@
 #ifndef ONESHOTLATENCYMEASURER_H_
 #define ONESHOTLATENCYMEASURER_H_
 
+#include "Config.h"
 #include "ros/ros.h"
 #include <string>
 #include <time.h>
@@ -16,13 +17,13 @@
 
 class OneShotLatencyMeasurer {
 public:
-	OneShotLatencyMeasurer(const int loopLength, long timeoutNanoSeconds, ros::NodeHandle* nodeHandle, bool lockMemory);
+	OneShotLatencyMeasurer(Config* config);
 	~OneShotLatencyMeasurer();
 	void measure();
 	void printMeasurementResults();
-	void saveDiffGnuplotData(std::string filename);
-	void saveMeasuredLatencyGnuplotData(std::string filename);
-	void saveReportedLatencyGnuplotData(std::string filename);
+	void saveDiffGnuplotData();
+	void saveMeasuredLatencyGnuplotData();
+	void saveReportedLatencyGnuplotData();
 	const static int clock_id = CLOCK_MONOTONIC_RAW;
 
 	MeasurementDataEvaluator* getMeasuredLatencyData();
@@ -30,8 +31,8 @@ public:
 	MeasurementDataEvaluator* getLatencyDifferenceData();
 private:
 	const int loopLength;
-	const double timeoutSeconds;
 	const long timeoutNanoseconds;
+	const double timeoutSeconds;
 	ros::NodeHandle* nodeHandle;
 	bool callbackCalled;
 	struct timespec callbackTs;

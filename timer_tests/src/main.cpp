@@ -72,7 +72,7 @@ bool parseArgs(int argc, char* argv[])
 }
 
 int main(int argc, char* argv[])
-{	
+{
 	if(!parseArgs(argc, argv))
 	{
 		printUsage();
@@ -91,10 +91,10 @@ int main(int argc, char* argv[])
 	ros::init(x, y, "Timer_tests");
 	config->nodeHandle = new ros::NodeHandle;
 	Logger::INFO("Performing ROS Timer latency measurements...");
-	OneShotLatencyMeasurer measurer(config->loops, config->timeout_us*1000, config->nodeHandle, config->testnodeRT);
+	OneShotLatencyMeasurer measurer(config);
 	measurer.measure();
 	measurer.printMeasurementResults();
-	measurer.saveMeasuredLatencyGnuplotData(config->getFilename());
+	measurer.saveMeasuredLatencyGnuplotData();
 	return 0;
 }
 
