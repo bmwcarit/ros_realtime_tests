@@ -11,23 +11,30 @@
 
 class MeasurementDataEvaluator {
 public:
+	struct latencyWithIndex {
+		long latency;
+		int index;
+	};
+
 	MeasurementDataEvaluator(int dataSize);
 	long getMinValue();
 	long getAvgValue();
 	long getMaxValue();
 	long* getData();
 	int getDataSize();
-	int getMaxValueIndex();
+	long* getTopTenLatencies();
+	int* getTopTenLatencyIndices();
 	void analyzeData();
 	~MeasurementDataEvaluator();
 private:
 	long* data;
 	int dataSize;
-	int maxValueIndex;
+	long* topTenLatencies;
+	int* topTenLatencyIndices;
 	long minValue;
 	long maxValue;
 	long long avgValue;
-	
+
 	MeasurementDataEvaluator();
 };
 
