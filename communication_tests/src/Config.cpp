@@ -14,13 +14,8 @@
 
 Config* Config::configInstance = 0;
 
-Config::Config() : nodeHandle(0), rtPrio(false), fifoScheduling(false), pubFrequency(0), amountMessages(0)
+Config::Config() : nodeHandle(0), rtPrio(false), fifoScheduling(false), pubFrequency(0), amountMessages(0), namePrefix("")
 {
-}
-
-void Config::printUsage()
-{
-	Logger::ERROR("Usage: communication_tests_publisher <amount_messages> <pub_frequency(Hz)> [<'rtPrio' + 'FIFO'/'RR'>]");
 }
 
 std::string Config::getTitle()
@@ -47,40 +42,10 @@ std::string Config::getTitle()
 	return ss.str();
 }
 
-bool Config::parseArgs(int argc, char* argv[])
-{
-	if(argc != 3 && argc != 5)
-	{
-		return false;
-	}
-	pubFrequency = atoi(argv[2]);
-	amountMessages = atoi(argv[1]);
-	if(argc == 5)
-	{
-		std::string rtPrioString(argv[3]);
-		if(strcasecmp(rtPrioString.c_str(), "rtPrio") != 0)
-		{
-			return false;
-		}
-		rtPrio = true;
-		std::string schedPolicy(argv[4]);
-		if(strcasecmp(schedPolicy.c_str(), "RR") == 0)
-		{
-			fifoScheduling = false;
-		} else if(strcasecmp(schedPolicy.c_str(), "FIFO") == 0) 
-		{
-			Config::getConfig()->fifoScheduling = true;
-		} else {
-			return false;
-		}
-
-	}
-	return true;
-}
-
 std::string Config::getFilename()
 {
 	std::stringstream filename;
+	filename << namePrefix;
 	filename << "ct_gnuplot_l" << amountMessages << "_fq" << pubFrequency;
 	if(rtPrio)
 	{

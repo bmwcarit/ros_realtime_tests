@@ -9,15 +9,17 @@
 #include "Config.h"
 #include "ros/ros.h"
 #include "Subscriber.h"
+#include "ArgumentParser.h"
 #include <rt_tests_support/Logger.h>
 #include <rt_tests_support/PrioritySwitcher.h>
 
 int main(int argc, char* argv[])
 {
 	Config* config = Config::getConfig();
-	if(!config->parseArgs(argc, argv))
+	ArgumentParser argParser;
+	if(!argParser.parseArgs(argc, argv))
 	{
-		config->printUsage();
+		argParser.printUsage();
 		return 1;
 	}
 	if(config->rtPrio)
@@ -29,10 +31,7 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 	}
-	int x = 1;
-	char* y[1];
-	y[0] = argv[0];
-	ros::init(x, y, "communication_tests_subscriber");
+	ros::init(argc, argv, "communication_tests_subscriber");
 	config->nodeHandle = new ros::NodeHandle();
 	Subscriber subscriber("communication_tests");
 	subscriber.startMeasurement();

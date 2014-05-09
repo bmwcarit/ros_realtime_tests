@@ -16,8 +16,6 @@
 class Config {
 public:
 	static Config* getConfig();
-	void printUsage();
-	bool parseArgs(int argc, char* argv[]);
 	std::string getFilename();
 	std::string getTitle();
 	ros::NodeHandle* nodeHandle;
@@ -25,6 +23,7 @@ public:
 	bool fifoScheduling;
 	int pubFrequency;
 	int amountMessages;
+	std::string namePrefix;
 private:
 	Config();
 	~Config();
