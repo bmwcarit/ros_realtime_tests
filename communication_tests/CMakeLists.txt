@@ -33,6 +33,10 @@ add_executable(communication_tests_subscriber
 )
 target_link_libraries(communication_tests_subscriber rt_tests_support ${catkin_LIBRARIES})
 
+install(DIRECTORY launch
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+)
+
 install(TARGETS communication_tests_publisher communication_tests_subscriber
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
