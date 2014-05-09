@@ -32,7 +32,8 @@ void Subscriber::startMeasurement()
 std::string Subscriber::getMeasurementSummary()
 {
 	std::stringstream ss;
-	ss << "Amount messages: " << config->amountMessages << "; Messages out of order: " << getAmountMessagesOutOfOrder() << std::endl;
+	ss << "Amount messages: " << config->amountMessages << "; Messages out of order: " << getAmountMessagesOutOfOrder();
+	ss << "; MAX value index: " << measurementData->getMaxValueIndex() << std::endl;
 	ss << "MIN: " << measurementData->getMinValue() << "us\tAVG: " << measurementData->getAvgValue() << "us\tMAX: " << measurementData->getMaxValue() << "us" << std::endl;
 	if(measurementData->getMinValue() == messageMissing)
 	{
@@ -59,7 +60,8 @@ void Subscriber::saveGnuplotData()
 	std::stringstream ss;
 	ss << "set title \"" << config->getTitle() << "\"" << std::endl;
 	ss << "set xlabel \"Latency in micro seconds - MIN:  ";
-	ss << measurementData->getMinValue() << "us  AVG: " << measurementData->getAvgValue() << "us MAX: " << measurementData->getMaxValue() << "us\"" << std::endl;
+	ss << measurementData->getMinValue() << "us  AVG: " << measurementData->getAvgValue() << "us MAX: " << measurementData->getMaxValue();
+	ss << "us\tMAX value index: " << measurementData->getMaxValueIndex() << "\"" << std::endl;
 	ss << "set ylabel \"Number of latency samples\"" << std::endl << "set yrange [0.7:]" << std::endl << "set logscale y" << std::endl;
 	int xrange = measurementData->getMaxValue() + 50;
 	ss << "set xrange [1:" << xrange << "]" << std::endl << "set xtics add(500, 1000)" << std::endl;
