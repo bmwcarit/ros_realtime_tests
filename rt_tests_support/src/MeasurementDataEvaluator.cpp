@@ -11,7 +11,7 @@
 
 MeasurementDataEvaluator::MeasurementDataEvaluator(int dataSize) :
 	data((long*) malloc(sizeof(long) * dataSize)), dataSize(dataSize),
-	minValue(0), maxValue(0), avgValue(0)
+	maxValueIndex(-1), minValue(0), maxValue(0), avgValue(0)
 {
 	for(int i = 0; i < dataSize; i++)
 	{
@@ -44,16 +44,23 @@ int MeasurementDataEvaluator::getDataSize()
 	return dataSize;
 }
 
+int MeasurementDataEvaluator::getMaxValueIndex()
+{
+	return maxValueIndex;
+}
+
 void MeasurementDataEvaluator::analyzeData()
 {
 	maxValue = data[0];
 	minValue = data[0];
 	avgValue = 0.0;
+	maxValueIndex = 0;
 	for(int i = 0; i < dataSize; i++)
 	{
 		if(data[i] > maxValue)
 		{
 			maxValue = data[i];
+			maxValueIndex = i;
 		}
 		if(data[i] < minValue)
 		{

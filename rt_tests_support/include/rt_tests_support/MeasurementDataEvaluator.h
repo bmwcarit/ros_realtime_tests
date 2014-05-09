@@ -17,11 +17,13 @@ public:
 	long getMaxValue();
 	long* getData();
 	int getDataSize();
+	int getMaxValueIndex();
 	void analyzeData();
 	~MeasurementDataEvaluator();
 private:
 	long* data;
 	int dataSize;
+	int maxValueIndex;
 	long minValue;
 	long maxValue;
 	long long avgValue;
