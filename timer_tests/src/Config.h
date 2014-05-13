@@ -24,6 +24,7 @@ public:
 	int timeout_us;
 	bool testnodeRT;
 	bool fifoScheduling;
+	std::string namePrefix;
 private:
 	Config();
 	~Config();

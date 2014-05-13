@@ -18,7 +18,8 @@ Config::Config() :
 	loops(0),
 	timeout_us(0),
 	testnodeRT(false),
-	fifoScheduling(false)
+	fifoScheduling(false),
+	namePrefix("")
 {
 }
 
@@ -49,7 +50,8 @@ std::string Config::getTitle()
 std::string Config::getFilename()
 {
 	std::stringstream filename;
-	filename << "Gnuplot_l" << loops << "_Tm" << (int) (timeout_us);
+	filename << namePrefix;
+	filename << "timer_tests_l" << loops << "_tm" << (int) (timeout_us);
 	if(testnodeRT)
 	{
 		filename << "-tnRT";
