@@ -17,6 +17,7 @@ Config::Config() :
 	testnodePrioritySwitcher(0),
 	loops(0),
 	timeout_us(0),
+	busyMode(false),
 	testnodeRT(false),
 	fifoScheduling(false),
 	namePrefix("")
@@ -44,6 +45,14 @@ std::string Config::getTitle()
 			ss << "RR";
 		}
 	}
+	if(testnodeRT && busyMode)
+	{
+		ss << "; ";
+	}
+	if(busyMode)
+	{
+		ss << "busy mode";
+	}
 	return ss.str();
 }
 
@@ -61,6 +70,10 @@ std::string Config::getFilename()
 		} else {
 			filename << "RR";
 		}
+	}
+	if(busyMode)
+	{
+		filename << "-bm";
 	}
 	return filename.str();
 }

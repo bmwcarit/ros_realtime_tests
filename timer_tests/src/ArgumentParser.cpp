@@ -54,6 +54,9 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 		{
 			config->namePrefix = std::string(argv[i+1]);
 			i++;
+		} else if(arg.compare("--busy") == 0)
+		{
+			config->busyMode = true;
 		}
 	}
 	return !error;
@@ -61,7 +64,7 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 
 std::string ArgumentParser::getUsage()
 {
-	return "Args: [--timeout <timeout(microseconds)>] [--repetitions <amount_repetitions>] [--rtSched <0(normalPriority)/RR/FIFO>] [--filePrefix <file_prefix>]";
+	return "Args: [--timeout <timeout(microseconds)>] [--repetitions <amount_repetitions>] [--rtSched <0(normalPriority)/RR/FIFO>] [--filePrefix <file_prefix>] [--busy]";
 }
 
 ArgumentParser::~ArgumentParser()

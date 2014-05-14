@@ -9,7 +9,8 @@
 #include "Config.h"
 #include "ros/ros.h"
 #include "ArgumentParser.h"
-#include "OneShotLatencyMeasurer.h"
+#include "BusyOneShotLatencyMeasurer.h"
+#include "IdleOneShotLatencyMeasurer.h"
 #include <rt_tests_support/Logger.h>
 
 bool setProcessPriority()
@@ -43,10 +44,18 @@ int main(int argc, char* argv[])
 	ros::init(argc, argv, "timer_tests");
 	config->nodeHandle = new ros::NodeHandle;
 	Logger::INFO("Performing ROS Timer latency measurements...");
-	OneShotLatencyMeasurer measurer(config);
-	measurer.measure();
-	measurer.printMeasurementResults();
-	measurer.saveMeasuredLatencyGnuplotData();
+	OneShotLatencyMeasurer* measurer;
+	if(config->busyMode)
+	{
+		Logger::INFO("Running in busy mode");
+		measurer = new BusyOneShotLatencyMeasurer();
+	} else {
+		Logger::INFO("Running in default mode");
+		measurer = new IdleOneShotLatencyMeasurer();
+	}
+	measurer->measure();
+	measurer->printMeasurementResults();
+	measurer->saveMeasuredLatencyGnuplotData();
 	return 0;
 }
 

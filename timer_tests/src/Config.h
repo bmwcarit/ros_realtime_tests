@@ -22,6 +22,7 @@ public:
 	PrioritySwitcher* testnodePrioritySwitcher;
 	int loops;
 	int timeout_us;
+	bool busyMode;
 	bool testnodeRT;
 	bool fifoScheduling;
 	std::string namePrefix;

@@ -15,15 +15,15 @@
 #define NANO_TO_MICRO_DIVISOR 1000
 #define SEC_TO_NANOSEC_MULTIPLIER 1000000000
 
-OneShotLatencyMeasurer::OneShotLatencyMeasurer(Config* config) :
-		loopLength(config->loops),
-		timeoutNanoseconds(config->timeout_us*1000),
+OneShotLatencyMeasurer::OneShotLatencyMeasurer() :
+		loopLength(Config::getConfig()->loops),
+		timeoutNanoseconds(Config::getConfig()->timeout_us*1000),
 		timeoutSeconds(((double)timeoutNanoseconds)/SEC_TO_NANOSEC_MULTIPLIER),
-		nodeHandle(config->nodeHandle),
+		nodeHandle(Config::getConfig()->nodeHandle),
 		callbackCalled(false),
 		callbackTs(),
 		loopCounter(0),
-		lockMemory(config->testnodeRT),
+		lockMemory(Config::getConfig()->testnodeRT),
 		latencyData(new MeasurementDataEvaluator(loopLength)),
 		reportedLatencyData(new MeasurementDataEvaluator(loopLength)),
 		differenceData(new MeasurementDataEvaluator(loopLength))
@@ -36,7 +36,7 @@ void OneShotLatencyMeasurer::measure()
 	{
 		if(mlockall(MCL_CURRENT|MCL_FUTURE) != 0)
 		{
-			Logger::ERROR("Could'nt lock memory! Aborting...");
+			Logger::ERROR("Couldn't lock memory! Aborting...");
 			exit(1);
 		}
 	}
@@ -48,26 +48,6 @@ void OneShotLatencyMeasurer::measure()
 	latencyData->analyzeData();
 	reportedLatencyData->analyzeData();
 	differenceData->analyzeData();
-}
-
-void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
-{
-	loopCounter = 0;
-	ros::Timer rosTimer = nodeHandle->createTimer(ros::Duration(0.01), &OneShotLatencyMeasurer::timerCallback, this, true);
-	spinUntilCallbackCalled();
-	long latencyTempNs = 0;
-	struct timespec startTs;
-	for(loopCounter = 0; loopCounter < loopLength; loopCounter++)
-	{
-		rosTimer.setPeriod(ros::Duration(timeoutSeconds));
-		clock_gettime(clock_id, &startTs);
-		rosTimer.start();
-		spinUntilCallbackCalled();
-		latencyTempNs = ((callbackTs.tv_sec - startTs.tv_sec) * SEC_TO_NANOSEC_MULTIPLIER) + (callbackTs.tv_nsec - startTs.tv_nsec);
-		latencyTempNs -= timeoutNanoseconds;
-		latencyData->getData()[loopCounter] = latencyTempNs/NANO_TO_MICRO_DIVISOR;
-		differenceData->getData()[loopCounter] = reportedLatencyData->getData()[loopCounter] - latencyData->getData()[loopCounter];
-	}
 }
 
 MeasurementDataEvaluator* OneShotLatencyMeasurer::getMeasuredLatencyData()
@@ -83,6 +63,26 @@ MeasurementDataEvaluator* OneShotLatencyMeasurer::getReportedLatencyData()
 MeasurementDataEvaluator* OneShotLatencyMeasurer::getLatencyDifferenceData()
 {
 	return differenceData;
+}
+
+void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
+{
+	loopCounter = 0;
+	ros::Timer rosTimer = nodeHandle->createTimer(ros::Duration(0.01), &OneShotLatencyMeasurer::timerCallback, this, true);
+	blockUntilCallbackCalled();
+	long latencyTempNs = 0;
+	struct timespec startTs;
+	for(loopCounter = 0; loopCounter < loopLength; loopCounter++)
+	{
+		rosTimer.setPeriod(ros::Duration(timeoutSeconds));
+		clock_gettime(clock_id, &startTs);
+		rosTimer.start();
+		blockUntilCallbackCalled();
+		latencyTempNs = ((callbackTs.tv_sec - startTs.tv_sec) * SEC_TO_NANOSEC_MULTIPLIER) + (callbackTs.tv_nsec - startTs.tv_nsec);
+		latencyTempNs -= timeoutNanoseconds;
+		latencyData->getData()[loopCounter] = latencyTempNs/NANO_TO_MICRO_DIVISOR;
+		differenceData->getData()[loopCounter] = reportedLatencyData->getData()[loopCounter] - latencyData->getData()[loopCounter];
+	}
 }
 
 std::string OneShotLatencyMeasurer::getMeasurementSummary()
@@ -165,15 +165,6 @@ void OneShotLatencyMeasurer::timerCallback(const ros::TimerEvent& te)
 	long latencyReportedTemp = ((te.current_real.sec - te.current_expected.sec) * SEC_TO_NANOSEC_MULTIPLIER) + (te.current_real.nsec - te.current_expected.nsec);
 	reportedLatencyData->getData()[loopCounter] = latencyReportedTemp/NANO_TO_MICRO_DIVISOR;
 	callbackCalled = true;
-}
-
-void OneShotLatencyMeasurer::spinUntilCallbackCalled()
-{
-	callbackCalled = false;
-	while(!callbackCalled && ros::ok())
-	{
-		ros::spinOnce();
-	}
 }
 
 OneShotLatencyMeasurer::~OneShotLatencyMeasurer()

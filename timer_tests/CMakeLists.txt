@@ -19,6 +19,8 @@ add_executable(timer_tests
    ./src/Config.cpp
    ./src/ArgumentParser.cpp
    ./src/OneShotLatencyMeasurer.cpp
+   ./src/BusyOneShotLatencyMeasurer.cpp
+   ./src/IdleOneShotLatencyMeasurer.cpp
 )
 target_link_libraries(timer_tests rt_tests_support ${catkin_LIBRARIES})
 

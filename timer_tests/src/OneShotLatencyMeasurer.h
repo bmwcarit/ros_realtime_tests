@@ -17,7 +17,7 @@
 
 class OneShotLatencyMeasurer {
 public:
-	OneShotLatencyMeasurer(Config* config);
+	OneShotLatencyMeasurer();
 	~OneShotLatencyMeasurer();
 	void measure();
 	void printMeasurementResults();
@@ -29,7 +29,7 @@ public:
 	MeasurementDataEvaluator* getMeasuredLatencyData();
 	MeasurementDataEvaluator* getReportedLatencyData();
 	MeasurementDataEvaluator* getLatencyDifferenceData();
-private:
+protected:
 	const int loopLength;
 	const long timeoutNanoseconds;
 	const double timeoutSeconds;
@@ -45,8 +45,8 @@ private:
 	void saveGnuplotData(std::string filename, MeasurementDataEvaluator* plotData);
 	void measureOneshotTimerLatencies();
 	void timerCallback(const ros::TimerEvent&);
-	void spinUntilCallbackCalled();
 	std::string getMeasurementSummary();
+	virtual void blockUntilCallbackCalled()=0;
 };
 
 #endif //ONESHOTLATENCYMEASURER_H_
