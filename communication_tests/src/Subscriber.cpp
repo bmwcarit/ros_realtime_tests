@@ -24,6 +24,10 @@ Subscriber::Subscriber(const std::string& topic) :
 void Subscriber::startMeasurement()
 {
 	lastSeq = messageMissing;
+	for(int i = 0; i < amountMessages; i++)
+	{
+		measurementData->getData()[i] = messageMissing;
+	}
 	outOfOrderCounter = 0;
 	ros::spin();
 	measurementData->analyzeData();
@@ -52,8 +56,7 @@ std::string Subscriber::getMeasurementSummary()
 				messagesMissing++;
 			}
 		}
-		ss << std::endl << "Total of " << messagesMissing << " missing messages.";
-		Logger::INFO(ss.str());
+		ss << std::endl << "Total of " << messagesMissing << " missing messages." << std::endl;
 	}
 	return ss.str();
 }
