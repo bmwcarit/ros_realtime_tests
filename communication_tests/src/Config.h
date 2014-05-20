@@ -21,6 +21,7 @@ public:
 	ros::NodeHandle* nodeHandle;
 	bool rtPrio;
 	bool fifoScheduling;
+	int startDelay;
 	int pubFrequency;
 	int amountMessages;
 	std::string namePrefix;

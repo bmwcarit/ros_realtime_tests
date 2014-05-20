@@ -14,7 +14,7 @@
 
 Config* Config::configInstance = 0;
 
-Config::Config() : nodeHandle(0), rtPrio(false), fifoScheduling(false), pubFrequency(0), amountMessages(0), namePrefix("")
+Config::Config() : nodeHandle(0), rtPrio(false), fifoScheduling(false), startDelay(0), pubFrequency(0), amountMessages(0), namePrefix("")
 {
 }
 

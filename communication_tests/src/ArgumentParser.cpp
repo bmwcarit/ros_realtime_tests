@@ -56,6 +56,10 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 		{
 			config->namePrefix = std::string(argv[i+1]);
 			i++;
+		} else if(arg.compare("--startDelay") == 0)
+		{
+			config->startDelay = atoi(argv[i+1]);
+			i++;
 		}
 	}
 	return initRT && initMsgs && initFreq;
@@ -63,7 +67,7 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 
 void ArgumentParser::printUsage()
 {
-	Logger::ERROR("Args: --frequency <frequency(Hz)> -- messages <amount_messages> --rtSched <0(normalePriority)/RR/FIFO>");
+	Logger::ERROR("Args: --frequency <frequency(Hz)> --messages <amount_messages> --rtSched <0(normalPriority)/RR/FIFO> [--startDelay <seconds>]");
 }
 
 ArgumentParser::~ArgumentParser()

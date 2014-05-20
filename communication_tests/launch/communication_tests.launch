@@ -3,10 +3,11 @@
   <arg name="messages" default="1000" />
   <arg name="frequency" default="1000" />
   <arg name="filePrefix" default="" />
+  <arg name="startDelay" default="1" />
   <node name="ct_subscriber" pkg="communication_tests" type="communication_tests_subscriber"
    args="--rtSched $(arg rtSched) --messages $(arg messages) --frequency $(arg frequency) --filePrefix '$(arg filePrefix)'"
   />
   <node name="ct_publisher" pkg="communication_tests" type="communication_tests_publisher"
-   args="--rtSched $(arg rtSched) --messages $(arg messages) --frequency $(arg frequency) --filePrefix '$(arg filePrefix)'"
+   args="--rtSched $(arg rtSched) --messages $(arg messages) --frequency $(arg frequency) --filePrefix '$(arg filePrefix)' --startDelay $(arg startDelay)"
   />
 </launch>
