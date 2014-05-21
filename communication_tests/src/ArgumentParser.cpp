@@ -16,10 +16,13 @@ ArgumentParser::ArgumentParser()
 
 bool ArgumentParser::parseArgs(int argc, char* argv[])
 {
-	bool initRT = false;
-	bool initMsgs = false;
-	bool initFreq = false;
 	Config* config = Config::getConfig();
+	config->rtPrio = false;
+	config->fifoScheduling = false;
+	config->amountMessages = 1000;
+	config->pubFrequency = 1000;
+	config->payloadLength = 0;
+	config->startDelay = 0;
 	for(int i = 1; i < argc; i++)
 	{
 		std::string arg(argv[i]);
@@ -29,28 +32,25 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 			if(val.compare("0") == 0)
 			{
 				config->rtPrio = false;
-				initRT = true;
 			} else if(val.compare("RR") == 0)
 			{
 				config->rtPrio = true;
 				config->fifoScheduling = false;
-				initRT = true;
 			} else if(val.compare("FIFO") == 0)
 			{
 				config->rtPrio = true;
 				config->fifoScheduling = true;
-				initRT = true;
+			} else {
+				return false;
 			}
 			i++;
 		} else if(arg.compare("--messages") == 0)
 		{
 			config->amountMessages = atoi(argv[i+1]);
-			initMsgs = true;
 			i++;
 		} else if(arg.compare("--frequency") == 0)
 		{
 			config->pubFrequency = atoi(argv[i+1]);
-			initFreq = true;
 			i++;
 		} else if(arg.compare("--payloadLength") == 0)
 		{
@@ -66,12 +66,12 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 			i++;
 		}
 	}
-	return initRT && initMsgs && initFreq;
+	return true;
 }
 
 void ArgumentParser::printUsage()
 {
-	Logger::ERROR("Args: --frequency <frequency(Hz)> --messages <amount_messages> --rtSched <0(normalPriority)/RR/FIFO> [--payloadLength <payloadlength(Bytes)>] [--startDelay <seconds>]");
+	Logger::ERROR("Args: [--frequency <frequency(Hz)>] [--messages <amount_messages>] [--rtSched <0(normalPriority)/RR/FIFO>] [--payloadLength <payloadlength(Bytes)>] [--startDelay <seconds>]");
 }
 
 ArgumentParser::~ArgumentParser()
