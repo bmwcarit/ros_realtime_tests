@@ -42,21 +42,22 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 				continue;
 			}
 			i++;
-		} else if(arg.compare("--repetitions") == 0)
+		} else if(arg.compare("--rpts") == 0)
 		{
 			config->loops = atoi(argv[i+1]);
 			i++;
-		} else if(arg.compare("--timeout") == 0)
+		} else if(arg.compare("--to") == 0)
 		{
 			config->timeout_us = atoi(argv[i+1]);
 			i++;
-		} else if(arg.compare("--filePrefix") == 0)
+		} else if(arg.compare("--fp") == 0)
 		{
 			config->namePrefix = std::string(argv[i+1]);
 			i++;
 		} else if(arg.compare("--busy") == 0)
 		{
-			config->busyMode = true;
+			config->busyMode = atoi(argv[i+1]);
+			i++;
 		}
 	}
 	return !error;
@@ -64,7 +65,7 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 
 std::string ArgumentParser::getUsage()
 {
-	return "Args: [--timeout <timeout(microseconds)>] [--repetitions <amount_repetitions>] [--rtSched <0(normalPriority)/RR/FIFO>] [--filePrefix <file_prefix>] [--busy]";
+	return "Args: [--to <timeout(microseconds)>] [--rpts <repetitions>] [--rtSched <0/RR/FIFO>] [--fp <file_prefix>] [--busy <0/1>]";
 }
 
 ArgumentParser::~ArgumentParser()
