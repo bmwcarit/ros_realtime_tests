@@ -20,13 +20,26 @@ This repository contains two test suites to validate the real-time capabilities 
 
 ### Options ###
 
-* *--filePrefix &lt;file prefix&gt;*
+* *--busy &lt;0/1&gt;*
+
+	Specify the measurement mode:
+
+	* 0: Default mode, using ROS::spin() in the main thread.
+	* 1: Busy mode. If this mode is specified, the main thread busy waits until the timer thread calls the callback function.
+
+	Note: Default mode tests the most common scenario, where a timer is set while another thread runs ROS::spin. Busy mode uses ROS::spinOnce() without sleep and therefore only measures the latency of the sleep call in the timer thread.
+
+	If not specified, default mode is used.
+
+* *--fp &lt;file prefix&gt;*
 
 	The string passed will be prepended to the log files that are generated once the measurement is complete.
 
-* *--repetitions &lt;number of repetitions&gt;*
+* *--rpts &lt;number of repetitions&gt;*
 
-	Specify the number of measurement repetitions. If not specified, 1000 is chosen as default value.
+	Specify the number of measurement repetitions.
+
+	If not specified, 1000 is chosen as default value.
 
 * *--rtSched &lt;0/RR/FIFO&gt;*
 
@@ -38,15 +51,11 @@ This repository contains two test suites to validate the real-time capabilities 
 
 	If not specified, 0 is chosen as default value.
 
-* *--timeout &lt;timeout in microseconds&gt;*
+* *--to &lt;timeout in microseconds&gt;*
 
-	Specify the timeout in microseconds with which the ROS-Timer is triggered. If not specified, 1000 (= 1 millisecond) is chosen as default value.
+	Specify the timeout in microseconds with which the ROS-Timer is triggered.
 
-### Flags ###
-
-* *--lowResource*
-
-	If this flag is set, the main thread will use the `ros::spin()` function to trigger the call of the timeout callback function, instead of busy waiting with repeated calls to `ros::spinOnce()`. This reduces the generated CPU load drastically. However, the measured latencies are the accumulated sleep latencies occurring in the ROS-Timer function and in the sleep function, used in the implementation of `ros::spin()`.
+	If not specified, 1000 (= 1 millisecond) is chosen as default value.
 
 ---
 
@@ -58,17 +67,25 @@ roslaunch communication_tests communication_tests.launch [Options]
 
 ### Options ###
 
-* *filePrefix:=&lt;file prefix&gt;*
+* *amt:=&lt;amount messages&gt;*
+
+	Specify the number of messages to send during the measurement process. If not specified, 1000 is chosen as default value.
+
+* *dly:=&lt;start delay&gt;*
+
+	Specify the amount of seconds to wait before starting the message publication process. Increase this value if the subscriber doesn't get the first messages.
+
+	If not specified, 1 second is chosen as default value.
+
+* *fp:=&lt;file prefix&gt;*
 
 	The string passed will be prepended to the log files which are generated once the measurement is complete.
 
-* *frequency:=&lt;publication frequency&gt;*
+* *freq:=&lt;publication frequency&gt;*
 
-	Specify the frequency in Hertz with that the messages are published during the testing process. If not specified, 1000 is chosen as default value.
+	Specify the frequency in Hertz with that the messages are published during the testing process.
 
-* *messages:=&lt;number of messages&gt;*
-
-	Specify the number of messages to send during the measurement process. If not specified, 1000 is chosen as default value.
+	If not specified, 1000 is chosen as default value.
 
 * *rtSched:=&lt;0/RR/FIFO&gt;*
 
