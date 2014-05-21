@@ -24,6 +24,10 @@ add_executable(timer_tests
 )
 target_link_libraries(timer_tests rt_tests_support ${catkin_LIBRARIES})
 
+install(DIRECTORY launch
+   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+)
+
 install(TARGETS timer_tests
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
