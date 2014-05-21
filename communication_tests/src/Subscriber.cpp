@@ -47,16 +47,18 @@ std::string Subscriber::getMeasurementSummary()
 	if(measurementData->getMinValue() == messageMissing)
 	{
 		int messagesMissing = 0;
-		ss << "Missing messages: |";
+		std::stringstream ssMissing;
+		ssMissing << "Missing messages: |";
 		for(int i = 0; i < config->amountMessages; i++)
 		{
 			if(measurementData->getData()[i] == messageMissing)
 			{
-				ss << i << "|";
+				ssMissing << i << "|";
 				messagesMissing++;
 			}
 		}
-		ss << std::endl << "Total of " << messagesMissing << " missing messages." << std::endl;
+		ss << "Total of " << messagesMissing << " missing messages." << std::endl;
+		ss << ssMissing.str() << std::endl;
 	}
 	return ss.str();
 }
