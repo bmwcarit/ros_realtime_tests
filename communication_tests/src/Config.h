@@ -23,6 +23,7 @@ public:
 	bool fifoScheduling;
 	int startDelay;
 	int pubFrequency;
+	int payloadLength;
 	int amountMessages;
 	std::string namePrefix;
 private:

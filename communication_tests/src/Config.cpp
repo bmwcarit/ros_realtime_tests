@@ -14,7 +14,10 @@
 
 Config* Config::configInstance = 0;
 
-Config::Config() : nodeHandle(0), rtPrio(false), fifoScheduling(false), startDelay(0), pubFrequency(0), amountMessages(0), namePrefix("")
+Config::Config() :
+	nodeHandle(0), rtPrio(false), fifoScheduling(false),
+	startDelay(0), pubFrequency(0), payloadLength(0),
+	amountMessages(0), namePrefix("")
 {
 }
 
@@ -28,10 +31,11 @@ std::string Config::getTitle()
 		machineName << unameResponse.nodename << " " << unameResponse.sysname << " " << unameResponse.release;
 	}
 	std::stringstream ss;
-	ss << "communication_tests plot " << machineName.str() << " -  " << amountMessages << " samples  ";
+	ss << "communication_tests plot " << machineName.str() << " -  " << amountMessages << " samples; ";
+	ss << "payload length " << payloadLength;
 	if(rtPrio)
 	{
-		ss << "test node RT ";
+		ss << "; test node RT ";
 		if(fifoScheduling)
 		{
 			ss << "FIFO";
@@ -47,6 +51,7 @@ std::string Config::getFilename()
 	std::stringstream filename;
 	filename << namePrefix;
 	filename << "ct_gnuplot_l" << amountMessages << "_fq" << pubFrequency;
+	filename << "_pl" << payloadLength;
 	if(rtPrio)
 	{
 		filename << "-tnRT";

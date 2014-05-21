@@ -22,9 +22,14 @@ void Publisher::publish()
 	Config* config = Config::getConfig();
 	ros::Rate publishFrequency(config->pubFrequency);
 	int sequenceNumber = 0;
+	communication_tests::timestamp_msg message;
+	message.payload.clear();
+	for(int i = 0; i < config->payloadLength; i++)
+	{
+		message.payload.push_back(0xFF);
+	}
 	for(int i = 0; i < config->amountMessages; i++)
 	{
-		communication_tests::timestamp_msg message;
 		message.seq = i;
 		message.last_msg = (i == (config->amountMessages-1));
 		struct timespec ts;
