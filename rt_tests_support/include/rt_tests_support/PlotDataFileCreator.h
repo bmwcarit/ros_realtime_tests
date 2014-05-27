@@ -15,7 +15,8 @@
 class PlotDataFileCreator {
 public:
 	PlotDataFileCreator();
-	void createPlottableDatafile(std::string filename, std::string preamble, MeasurementDataEvaluator* data);
+	void createPlottableDatafile(std::string filename, std::string preamble, MeasurementDataEvaluator* data, bool commentNeg=true);
+	void createPlottableDatafile(std::string filename, std::string preamble, int max, int min, long* data, int dataSize, bool commentNeg=true);
 	~PlotDataFileCreator();
 };
 

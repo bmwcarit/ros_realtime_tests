@@ -7,6 +7,7 @@
 **/
 
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 #include <rt_tests_support/PlotDataFileCreator.h>
 
@@ -14,19 +15,24 @@ PlotDataFileCreator::PlotDataFileCreator()
 {
 }
 
-void PlotDataFileCreator::createPlottableDatafile(std::string filename, std::string preamble, MeasurementDataEvaluator* data)
+void PlotDataFileCreator::createPlottableDatafile(std::string filename, std::string preamble, MeasurementDataEvaluator* data, bool commentNeg)
 {
-	const int maxValue = data->getMaxValue();
-	const int minValue = data->getMinValue();
+	createPlottableDatafile(filename, preamble, data->getMaxValue(), data->getMinValue(), data->getData(), data->getDataSize(), commentNeg);
+}
+
+void PlotDataFileCreator::createPlottableDatafile(std::string filename, std::string preamble, int max, int min, long* data, int dataSize, bool commentNeg)
+{
+	const int maxValue = max;
+	const int minValue = min;
 	const int latHitArraySize = maxValue + 1;
-	const long* plotValues = data->getData();
+	const long* plotValues = data;
 	int hits[latHitArraySize];
 	for(int i = 0; i < latHitArraySize; i++)
 	{
 		hits[i] = 0;
 	}
 
-	const int loopLength = data->getDataSize();
+	const int loopLength = dataSize;
 	for(int i = 0; i < loopLength; i++)
 	{
 		if(plotValues[i] >= 0)
@@ -38,15 +44,20 @@ void PlotDataFileCreator::createPlottableDatafile(std::string filename, std::str
 	std::ofstream fs;
 	fs.open(filename.c_str());
 	fs << preamble;
+	std::stringstream positiveValues;
 	for(int i = 0; i < latHitArraySize; i++)
 	{
-		fs << std::setfill('0') << std::setw(6) << i << " \t" << std::setfill('0') << std::setw(6) << hits[i] << std::endl;
+		positiveValues << std::setfill('0') << std::setw(6) << i << " \t" << std::setfill('0') << std::setw(6) << hits[i] << std::endl;
 	}
 
+	std::stringstream negativeValues("");
 	if(minValue < 0)
 	{
 		const int negHitArraySize = minValue*(-1) + 1;
-		fs << "# negative Values following" << std::endl;
+		if(commentNeg)
+		{
+			negativeValues << "# negative Values following" << std::endl;
+		}
 		int negHits[negHitArraySize];
 		for(int i = 0; i < negHitArraySize; i++)
 		{
@@ -60,12 +71,23 @@ void PlotDataFileCreator::createPlottableDatafile(std::string filename, std::str
 			}
 		}
 
-		for(int i = 1; i < negHitArraySize; i++)
+		for(int i = negHitArraySize-1; i > 0; i--)
 		{
-			fs << "#-" << std::setfill('0') << std::setw(6) << i << " \t" << std::setfill('0') << std::setw(6) << negHits[i] << std::endl;
+			if(commentNeg)
+			{
+				negativeValues << "#";
+			}
+			negativeValues << "-" << std::setfill('0') << std::setw(6) << i << " \t" << std::setfill('0') << std::setw(6) << negHits[i] << std::endl;
 		}
 	}
-
+	if(commentNeg)
+	{
+		fs << positiveValues.str();
+		fs << negativeValues.str();
+	} else {
+		fs << negativeValues.str();
+		fs << positiveValues.str();
+	}
 	fs << std::endl << "end" << std::endl;
 	fs.close();
 }
