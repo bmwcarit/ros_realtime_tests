@@ -94,7 +94,7 @@ std::string OneShotLatencyMeasurer::getMeasurementSummary()
 	ss <<"Reported:\tMIN:  " << reportedLatencyData->getMinValue() << "us \tAVG:  " << reportedLatencyData->getAvgValue() << "us \tMAX:  ";
 	ss << reportedLatencyData->getMaxValue() << "us" << std::endl;
 	ss << "Difference:\tMIN: " << differenceData->getMinValue() << "us\tAVG: " << differenceData->getAvgValue() << "us\tMAX: " << differenceData->getMaxValue() << "us";
-	ss << std::endl;
+	ss << std::endl << latencyData->getBoundaryValueSummary();
 	return ss.str();
 }
 

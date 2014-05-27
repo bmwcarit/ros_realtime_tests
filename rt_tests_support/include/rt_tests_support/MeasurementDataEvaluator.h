@@ -9,6 +9,8 @@
 #ifndef MEASUREMENTDATAEVALUATOR_H_
 #define MEASUREMENTDATAEVALUATOR_H_
 
+#include <string.h>
+
 typedef struct {
 	long value;
 	int index;
@@ -23,18 +25,22 @@ public:
 	long* getData();
 	int getDataSize();
 	valueWithIndex* getTopTenValues();
+	valueWithIndex* getLowestTenValues();
+	std::string getBoundaryValueSummary();
 	void analyzeData();
 	~MeasurementDataEvaluator();
 private:
 	long* data;
 	int dataSize;
 	valueWithIndex* topTenValues; // Big -> small
+	valueWithIndex* lowestTenValues; // Small -> big
 	long minValue;
 	long maxValue;
 	long long avgValue;
 
 	void calcMinMaxAvg();
 	void findTopTenValues();
+	void findLowestTenValues();
 	MeasurementDataEvaluator();
 };
 

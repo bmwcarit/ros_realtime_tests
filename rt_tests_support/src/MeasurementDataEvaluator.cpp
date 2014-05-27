@@ -6,12 +6,14 @@
 * (see http://spdx.org/licenses/BSD-3-Clause).
 **/
 
+#include <sstream>
 #include <stdlib.h>
 #include <rt_tests_support/MeasurementDataEvaluator.h>
 
 MeasurementDataEvaluator::MeasurementDataEvaluator(int dataSize) :
 	data((long*) malloc(sizeof(long) * dataSize)), dataSize(dataSize),
 	topTenValues((valueWithIndex*) malloc(sizeof(valueWithIndex) * 10)),
+	lowestTenValues((valueWithIndex*) malloc(sizeof(valueWithIndex) * 10)),
 	minValue(0), maxValue(0), avgValue(0)
 {
 	for(int i = 0; i < dataSize; i++)
@@ -50,10 +52,16 @@ valueWithIndex* MeasurementDataEvaluator::getTopTenValues()
 	return topTenValues;
 }
 
+valueWithIndex* MeasurementDataEvaluator::getLowestTenValues()
+{
+	return lowestTenValues;
+}
+
 void MeasurementDataEvaluator::analyzeData()
 {
 	calcMinMaxAvg();
 	findTopTenValues();
+	findLowestTenValues();
 }
 
 void MeasurementDataEvaluator::calcMinMaxAvg()
@@ -102,7 +110,50 @@ void MeasurementDataEvaluator::findTopTenValues()
 	}
 }
 
+void MeasurementDataEvaluator::findLowestTenValues()
+{
+	for(int i = 0; i < 10; i++)
+	{
+		lowestTenValues[i].value = maxValue;
+		lowestTenValues[i].index = 0;
+	}
+	for(int i = 0; i < dataSize; i++)
+	{
+		for(int j = 0; j < 10; j++)
+		{
+			if(data[i] < lowestTenValues[j].value)
+			{
+				for(int k = 9; k > j; k--)
+				{
+					lowestTenValues[k].value = lowestTenValues[k-1].value;
+					lowestTenValues[k].index = lowestTenValues[k-1].index;
+				}
+				lowestTenValues[j].value = data[i];
+				lowestTenValues[j].index = i;
+				break;
+			}
+		}
+	}
+}
+
+std::string MeasurementDataEvaluator::getBoundaryValueSummary()
+{
+	std::stringstream ss;
+	ss << "Indices of top values(|latency:index|): |";
+	for(int i = 0; i < 10; i++)
+	{
+		ss << topTenValues[i].value << ":" << topTenValues[i].index << "|";
+	}
+	ss << std::endl << "Indices of lowest values(|latency:index|): |";
+	for(int i = 0; i < 10; i++)
+	{
+		ss << lowestTenValues[i].value << ":" << lowestTenValues[i].index << "|";
+	}
+	ss << std::endl;
+	return ss.str();
+}
+
 MeasurementDataEvaluator::~MeasurementDataEvaluator()
 {
-	delete data, topTenValues;
+	delete data, topTenValues, lowestTenValues;
 }

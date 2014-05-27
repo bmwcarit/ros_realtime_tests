@@ -38,13 +38,7 @@ std::string Subscriber::getMeasurementSummary()
 	std::stringstream ss;
 	ss << "Amount messages: " << config->amountMessages << "; Messages out of order: " << getAmountMessagesOutOfOrder() << std::endl;
 	ss << "MIN: " << measurementData->getMinValue() << "us\tAVG: " << measurementData->getAvgValue() << "us\tMAX: " << measurementData->getMaxValue() << "us" << std::endl;
-	ss << "Indices of top values(|latency:index|): |";
-	valueWithIndex* topTenLatencies = measurementData->getTopTenValues();
-	for(int i = 0; i < 10; i++)
-	{
-		ss << topTenLatencies[i].value << ":" << topTenLatencies[i].index << "|";
-	}
-	ss << std::endl;
+	ss << measurementData->getBoundaryValueSummary();
 	if(measurementData->getMinValue() == messageMissing)
 	{
 		int messagesMissing = 0;
