@@ -9,32 +9,32 @@
 #ifndef MEASUREMENTDATAEVALUATOR_H_
 #define MEASUREMENTDATAEVALUATOR_H_
 
+typedef struct {
+	long value;
+	int index;
+} valueWithIndex;
+
 class MeasurementDataEvaluator {
 public:
-	struct latencyWithIndex {
-		long latency;
-		int index;
-	};
-
 	MeasurementDataEvaluator(int dataSize);
 	long getMinValue();
 	long getAvgValue();
 	long getMaxValue();
 	long* getData();
 	int getDataSize();
-	long* getTopTenLatencies();
-	int* getTopTenLatencyIndices();
+	valueWithIndex* getTopTenValues();
 	void analyzeData();
 	~MeasurementDataEvaluator();
 private:
 	long* data;
 	int dataSize;
-	long* topTenLatencies;
-	int* topTenLatencyIndices;
+	valueWithIndex* topTenValues; // Big -> small
 	long minValue;
 	long maxValue;
 	long long avgValue;
 
+	void calcMinMaxAvg();
+	void findTopTenValues();
 	MeasurementDataEvaluator();
 };
 
