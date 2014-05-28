@@ -12,13 +12,14 @@ BusyOneShotLatencyMeasurer::BusyOneShotLatencyMeasurer() : OneShotLatencyMeasure
 {
 }
 
-void BusyOneShotLatencyMeasurer::blockUntilCallbackCalled()
+bool BusyOneShotLatencyMeasurer::blockUntilCallbackCalled()
 {
 	callbackCalled = false;
 	while(!callbackCalled && ros::ok())
 	{
 		ros::spinOnce();
 	}
+	return true;
 }
 
 BusyOneShotLatencyMeasurer::~BusyOneShotLatencyMeasurer()

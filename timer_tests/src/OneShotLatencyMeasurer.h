@@ -37,6 +37,7 @@ protected:
 	bool callbackCalled;
 	struct timespec callbackTs;
 	int loopCounter;
+	int ignoredTimerCounter;
 	const bool lockMemory;
 	MeasurementDataEvaluator* latencyData;
 	MeasurementDataEvaluator* reportedLatencyData;
@@ -46,7 +47,7 @@ protected:
 	void measureOneshotTimerLatencies();
 	void timerCallback(const ros::TimerEvent&);
 	std::string getMeasurementSummary();
-	virtual void blockUntilCallbackCalled()=0;
+	virtual bool blockUntilCallbackCalled()=0;
 };
 
 #endif //ONESHOTLATENCYMEASURER_H_

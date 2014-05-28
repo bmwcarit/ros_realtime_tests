@@ -16,7 +16,7 @@ public:
 	IdleOneShotLatencyMeasurer();
 	~IdleOneShotLatencyMeasurer();
 protected:
-	void blockUntilCallbackCalled();
+	bool blockUntilCallbackCalled();
 };
 
 #endif //IDLEONESHOTLATENCYMEASURER_H_

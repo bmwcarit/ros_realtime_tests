@@ -24,16 +24,24 @@ IdleOneShotLatencyMeasurer::IdleOneShotLatencyMeasurer() : OneShotLatencyMeasure
 	pthread_create(&thread, NULL, &doRosSpin, NULL);
 }
 
-void IdleOneShotLatencyMeasurer::blockUntilCallbackCalled()
+bool IdleOneShotLatencyMeasurer::blockUntilCallbackCalled()
 {
 	callbackCalled = false;
 	struct timespec sleep;
-	sleep.tv_sec = (int) timeoutSeconds;
-	sleep.tv_nsec = timeoutNanoseconds - (sleep.tv_sec * SEC_TO_NANOSEC_MULTIPLIER);
+	long long timeoutTemp = timeoutNanoseconds * 1.2;
+	sleep.tv_sec = (int) timeoutTemp/SEC_TO_NANOSEC_MULTIPLIER;
+	sleep.tv_nsec = timeoutTemp - (sleep.tv_sec * SEC_TO_NANOSEC_MULTIPLIER);
+	int i = 0;
 	while(!callbackCalled)
 	{
 		nanosleep((const struct timespec*) &sleep, NULL);
+		i++;
+		if(i>300)
+		{
+			return false;
+		}
 	}
+	return true;
 }
 
 IdleOneShotLatencyMeasurer::~IdleOneShotLatencyMeasurer()

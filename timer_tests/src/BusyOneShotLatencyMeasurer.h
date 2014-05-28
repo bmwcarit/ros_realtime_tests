@@ -16,7 +16,7 @@ public:
 	BusyOneShotLatencyMeasurer();
 	~BusyOneShotLatencyMeasurer();
 protected:
-	void blockUntilCallbackCalled();
+	bool blockUntilCallbackCalled();
 };
 
 #endif //BUSYONESHOTLATENCYMEASURER_H_

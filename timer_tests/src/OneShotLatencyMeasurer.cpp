@@ -22,7 +22,7 @@ OneShotLatencyMeasurer::OneShotLatencyMeasurer() :
 		nodeHandle(Config::getConfig()->nodeHandle),
 		callbackCalled(false),
 		callbackTs(),
-		loopCounter(0),
+		loopCounter(0), ignoredTimerCounter(0),
 		lockMemory(Config::getConfig()->testnodeRT),
 		latencyData(new MeasurementDataEvaluator(loopLength)),
 		reportedLatencyData(new MeasurementDataEvaluator(loopLength)),
@@ -77,11 +77,16 @@ void OneShotLatencyMeasurer::measureOneshotTimerLatencies()
 		rosTimer.setPeriod(ros::Duration(timeoutSeconds));
 		clock_gettime(clock_id, &startTs);
 		rosTimer.start();
-		blockUntilCallbackCalled();
-		latencyTempNs = ((callbackTs.tv_sec - startTs.tv_sec) * SEC_TO_NANOSEC_MULTIPLIER) + (callbackTs.tv_nsec - startTs.tv_nsec);
-		latencyTempNs -= timeoutNanoseconds;
-		latencyData->getData()[loopCounter] = latencyTempNs/NANO_TO_MICRO_DIVISOR;
-		differenceData->getData()[loopCounter] = reportedLatencyData->getData()[loopCounter] - latencyData->getData()[loopCounter];
+		if(blockUntilCallbackCalled())
+		{
+			latencyTempNs = ((callbackTs.tv_sec - startTs.tv_sec) * SEC_TO_NANOSEC_MULTIPLIER) + (callbackTs.tv_nsec - startTs.tv_nsec);
+			latencyTempNs -= timeoutNanoseconds;
+			latencyData->getData()[loopCounter] = latencyTempNs/NANO_TO_MICRO_DIVISOR;
+			differenceData->getData()[loopCounter] = reportedLatencyData->getData()[loopCounter] - latencyData->getData()[loopCounter];
+		} else {
+			loopCounter--;
+			ignoredTimerCounter++;
+		}
 	}
 }
 
@@ -94,6 +99,10 @@ std::string OneShotLatencyMeasurer::getMeasurementSummary()
 	ss <<"Reported:\tMIN:  " << reportedLatencyData->getMinValue() << "us \tAVG:  " << reportedLatencyData->getAvgValue() << "us \tMAX:  ";
 	ss << reportedLatencyData->getMaxValue() << "us" << std::endl;
 	ss << "Difference:\tMIN: " << differenceData->getMinValue() << "us\tAVG: " << differenceData->getAvgValue() << "us\tMAX: " << differenceData->getMaxValue() << "us";
+	if(ignoredTimerCounter > 0)
+	{
+	ss << std::endl << ignoredTimerCounter << " timers didn't fire!";
+	}
 	ss << std::endl << latencyData->getBoundaryValueSummary();
 	return ss.str();
 }
