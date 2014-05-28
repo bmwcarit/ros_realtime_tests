@@ -1,0 +1,9 @@
+<launch>
+  <arg name="fp" default="" />
+  <arg name="fq" default="1000" />
+  <arg name="rpts" default="1000" />
+  <arg name="rtSched" default="0" />
+  <node name="cyclic_timer_tests" pkg="cyclic_timer_tests" type="cyclic_timer_tests"
+   args="--rtSched $(arg rtSched) --rpts $(arg rpts) --fq $(arg fq) --fp '$(arg fp)'"
+  />
+</launch>

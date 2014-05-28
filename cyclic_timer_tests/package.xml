@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package>
+  <name>cyclic_timer_tests</name>
+  <version>0.0.1</version>
+  <description>Tests on the realtime capabilities of the cyclic ROS Timer function</description>
+
+  <maintainer email="jonas.sticha@bmw-carit.de">Jonas Sticha</maintainer>
+  <license>BSD</license>
+  <author email="jonas.sticha@bmw-carit.de">Jonas Sticha</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <run_depend>roscpp</run_depend>
+
+  <export>
+  </export>
+</package>
