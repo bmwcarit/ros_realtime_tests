@@ -51,4 +51,3 @@ protected:
 };
 
 #endif //ONESHOTLATENCYMEASURER_H_
-

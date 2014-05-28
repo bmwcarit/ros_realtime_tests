@@ -4,7 +4,7 @@
   <arg name="rpts" default="1000" />
   <arg name="busy" default="0" />
   <arg name="rtSched" default="0" />
-  <node name="timer_tests" pkg="timer_tests" type="timer_tests"
+  <node name="oneshot_timer_tests" pkg="oneshot_timer_tests" type="oneshot_timer_tests"
    args="--rtSched $(arg rtSched) --rpts $(arg rpts) --to $(arg to) --fp '$(arg fp)' --busy $(arg busy)"
   />
 </launch>

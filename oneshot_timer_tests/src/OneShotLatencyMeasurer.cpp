@@ -137,7 +137,6 @@ void OneShotLatencyMeasurer::saveDiffGnuplotData()
 
 void OneShotLatencyMeasurer::saveGnuplotData(std::string filename, MeasurementDataEvaluator* measurementData)
 {
-	
 	Config* config = Config::getConfig();
 	std::stringstream ss;
 	ss << "set title \"" << config-> getTitle() << "\"" << std::endl;
@@ -180,4 +179,3 @@ OneShotLatencyMeasurer::~OneShotLatencyMeasurer()
 {
 	delete latencyData, reportedLatencyData, differenceData;
 }
-

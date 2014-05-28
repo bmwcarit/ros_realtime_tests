@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 		Logger::ERROR("Couldn't set priority appropriately, maybe not running as root?");
 		return 1;
 	}
-	ros::init(argc, argv, "timer_tests");
+	ros::init(argc, argv, "oneshot_timer_tests");
 	config->nodeHandle = new ros::NodeHandle;
 	Logger::INFO("Performing ROS Timer latency measurements...");
 	OneShotLatencyMeasurer* measurer;
@@ -58,4 +58,3 @@ int main(int argc, char* argv[])
 	measurer->saveMeasuredLatencyGnuplotData();
 	return 0;
 }
-

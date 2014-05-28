@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>timer_tests</name>
+  <name>oneshot_timer_tests</name>
   <version>0.0.1</version>
-  <description>Tests on the realtime capabilities of the ROS Timer class</description>
+  <description>Tests on the realtime capabilities of the ROS OneShot Timer</description>
 
   <maintainer email="jonas.sticha@bmw-carit.de">Jonas Sticha</maintainer>
   <license>BSD</license>

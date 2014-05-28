@@ -60,7 +60,7 @@ std::string Config::getFilename()
 {
 	std::stringstream filename;
 	filename << namePrefix;
-	filename << "timer_tests_l" << loops << "_tm" << (int) (timeout_us);
+	filename << "oneshot_timer_tests_l" << loops << "_tm" << (int) (timeout_us);
 	if(testnodeRT)
 	{
 		filename << "-tnRT";
