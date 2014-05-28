@@ -36,6 +36,7 @@ int main(int argc, char* argv[])
 	Publisher publisher("communication_tests");
 	sleep(config->startDelay);
 	publisher.publish();
+	ros::shutdown();
 	Logger::INFO("Done publishing...");
 	return 0;
 }
