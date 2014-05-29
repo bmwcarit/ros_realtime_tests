@@ -23,7 +23,7 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 	for(int i = 1; i < argc; i++)
 	{
 		std::string arg(argv[i]);
-		if(arg.compare("--rtSched") == 0)
+		if(arg.compare("-s") == 0)
 		{
 			std::string val(argv[i+1]);
 			if(val.compare("0") == 0)
@@ -42,19 +42,19 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 				continue;
 			}
 			i++;
-		} else if(arg.compare("--rpts") == 0)
+		} else if(arg.compare("-r") == 0)
 		{
 			config->loops = atoi(argv[i+1]);
 			i++;
-		} else if(arg.compare("--to") == 0)
+		} else if(arg.compare("-t") == 0)
 		{
 			config->timeout_us = atoi(argv[i+1]);
 			i++;
-		} else if(arg.compare("--fp") == 0)
+		} else if(arg.compare("-p") == 0)
 		{
 			config->namePrefix = std::string(argv[i+1]);
 			i++;
-		} else if(arg.compare("--busy") == 0)
+		} else if(arg.compare("-b") == 0)
 		{
 			config->busyMode = atoi(argv[i+1]);
 			i++;
@@ -65,7 +65,7 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 
 std::string ArgumentParser::getUsage()
 {
-	return "Args: [--to <timeout(microseconds)>] [--rpts <repetitions>] [--rtSched <0/RR/FIFO>] [--fp <file_prefix>] [--busy <0/1>]";
+	return "Args: [-t <timeout(microseconds)>] [-r <repetitions>] [-s <0/RR/FIFO>] [-p <file/name_prefix>] [-b <(busy_mode)0/1>]";
 }
 
 ArgumentParser::~ArgumentParser()

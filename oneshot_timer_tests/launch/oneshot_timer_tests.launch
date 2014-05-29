@@ -1,10 +1,10 @@
 <launch>
-  <arg name="to" default="1000" />
-  <arg name="fp" default="" />
-  <arg name="rpts" default="1000" />
-  <arg name="busy" default="0" />
-  <arg name="rtSched" default="0" />
+  <arg name="t" default="1000" />
+  <arg name="p" default="" />
+  <arg name="r" default="1000" />
+  <arg name="b" default="0" />
+  <arg name="s" default="0" />
   <node name="oneshot_timer_tests" pkg="oneshot_timer_tests" type="oneshot_timer_tests"
-   args="--rtSched $(arg rtSched) --rpts $(arg rpts) --to $(arg to) --fp '$(arg fp)' --busy $(arg busy)"
+   args="-s $(arg s) -r $(arg r) -t $(arg t) -p '$(arg p)' -b $(arg b)"
   />
 </launch>
