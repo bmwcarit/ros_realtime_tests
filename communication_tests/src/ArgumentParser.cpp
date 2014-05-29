@@ -26,7 +26,7 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 	for(int i = 1; i < argc; i++)
 	{
 		std::string arg(argv[i]);
-		if(arg.compare("--rtSched") == 0)
+		if(arg.compare("-s") == 0)
 		{
 			std::string val(argv[i+1]);
 			if(val.compare("0") == 0)
@@ -44,23 +44,23 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 				return false;
 			}
 			i++;
-		} else if(arg.compare("--amt") == 0)
+		} else if(arg.compare("-r") == 0)
 		{
 			config->amountMessages = atoi(argv[i+1]);
 			i++;
-		} else if(arg.compare("--freq") == 0)
+		} else if(arg.compare("-f") == 0)
 		{
 			config->pubFrequency = atoi(argv[i+1]);
 			i++;
-		} else if(arg.compare("--pl") == 0)
+		} else if(arg.compare("-l") == 0)
 		{
 			config->payloadLength = atoi(argv[i+1]);
 			i++;
-		} else if(arg.compare("--fp") == 0)
+		} else if(arg.compare("-p") == 0)
 		{
 			config->namePrefix = std::string(argv[i+1]);
 			i++;
-		} else if(arg.compare("--dly") == 0)
+		} else if(arg.compare("-d") == 0)
 		{
 			config->startDelay = atoi(argv[i+1]);
 			i++;
@@ -71,7 +71,7 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 
 void ArgumentParser::printUsage()
 {
-	Logger::ERROR("Args: [--freq <frequency>] [--amt <amount_messages>] [--rtSched <0/RR/FIFO>] [--pl <payload_length>] [--fp <file_prefix>] [--dly <start_delay>]");
+	Logger::ERROR("Args: [-f <frequency>] [-r <repetitions>] [-s <0/RR/FIFO>] [-l <payload_length>] [-p <file_prefix>] [-d <start_delay(seconds)>]");
 }
 
 ArgumentParser::~ArgumentParser()
