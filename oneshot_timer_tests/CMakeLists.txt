@@ -1,18 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(oneshot_timer_tests)
 
-find_package(catkin REQUIRED COMPONENTS roscpp)
+find_package(catkin REQUIRED COMPONENTS roscpp rt_tests_support)
 
-catkin_package()
+catkin_package(CATKIN_DEPENDS rt_tests_support)
 
 include_directories(${catkin_INCLUDE_DIRS} ../rt_tests_support/include)
-
-add_library(rt_tests_support STATIC
-   ../rt_tests_support/src/Logger.cpp
-   ../rt_tests_support/src/PrioritySwitcher.cpp
-   ../rt_tests_support/src/PlotDataFileCreator.cpp
-   ../rt_tests_support/src/MeasurementDataEvaluator.cpp
-)
 
 add_executable(oneshot_timer_tests
    ./src/main.cpp

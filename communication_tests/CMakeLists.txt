@@ -1,21 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(communication_tests)
 
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs message_generation)
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs message_generation rt_tests_support)
 
 add_message_files(FILES timestamp_msg.msg)
 generate_messages(DEPENDENCIES std_msgs)
 
-catkin_package(CATKIN_DEPENDS roscpp std_msgs message_runtime)
+catkin_package(CATKIN_DEPENDS roscpp std_msgs message_runtime rt_tests_support)
 
 include_directories(${catkin_INCLUDE_DIRS} ../rt_tests_support/include)
-
-add_library(rt_tests_support STATIC
-   ../rt_tests_support/src/Logger.cpp
-   ../rt_tests_support/src/PrioritySwitcher.cpp
-   ../rt_tests_support/src/PlotDataFileCreator.cpp
-   ../rt_tests_support/src/MeasurementDataEvaluator.cpp
-)
 
 add_executable(communication_tests_publisher
    ./src/Config.cpp

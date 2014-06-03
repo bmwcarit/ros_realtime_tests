@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>oneshot_timer_tests</name>
-  <version>0.0.1</version>
+  <version>0.1.1</version>
   <description>Tests on the realtime capabilities of the ROS OneShot Timer</description>
 
   <maintainer email="jonas.sticha@bmw-carit.de">Jonas Sticha</maintainer>
@@ -9,7 +9,9 @@
   <author email="jonas.sticha@bmw-carit.de">Jonas Sticha</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rt_tests_support</build_depend>
   <build_depend>roscpp</build_depend>
+  <run_depend>rt_tests_support</run_depend>
   <run_depend>roscpp</run_depend>
 
   <export>
