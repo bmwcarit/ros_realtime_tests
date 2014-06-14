@@ -1,0 +1,34 @@
+# Copyright (C) 2014, BMW Car IT GmbH
+# Author: Jonas Sticha (Jonas.Sticha@bmw-carit.de)
+
+language: cpp
+compiler: gcc
+notifications:
+  email:
+    recipients: Jonas.Sticha@bmw-carit.de
+before_install:
+  - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
+  - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+  - sudo apt-get update -qq
+install:
+  - sudo apt-get install -qq ros-hydro-ros-base
+  - sudo rosdep init
+  - rosdep update
+before_script:
+  - export ROS_MASTER_URI=http://localhost:11311
+  - source /opt/ros/hydro/setup.bash
+  - DL_DIR=$(pwd)
+  - cd ..
+  - ROOT_DIR=$(pwd)
+  - mv $DL_DIR $ROOT_DIR/src
+  - cd src
+  - catkin_init_workspace
+  - cd ..
+  - roscore &
+script:
+  - catkin_make install
+  - source devel/setup.bash
+  - roslaunch communication_tests communication_tests.launch
+  - roslaunch cyclic_timer_tests cyclic_timer_tests.launch
+  - roslaunch oneshot_timer_tests oneshot_timer_tests.launch
+  - head -n 20 ~/.ros/*.log
