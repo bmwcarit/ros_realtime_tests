@@ -13,7 +13,7 @@ add_executable(cyclic_timer_tests
    ./src/ArgumentParser.cpp
    ./src/CyclicLatencyMeasurer.cpp
 )
-target_link_libraries(cyclic_timer_tests rt_tests_support ${catkin_LIBRARIES})
+target_link_libraries(cyclic_timer_tests ${catkin_LIBRARIES})
 
 install(DIRECTORY launch
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch

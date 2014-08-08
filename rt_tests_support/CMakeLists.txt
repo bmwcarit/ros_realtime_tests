@@ -3,7 +3,9 @@ project(rt_tests_support)
 
 find_package(catkin REQUIRED COMPONENTS roscpp)
 
-catkin_package()
+catkin_package(DEPENDS roscpp
+	       INCLUDE_DIRS include
+               LIBRARIES ${PROJECT_NAME})
 
 include_directories(${catkin_INCLUDE_DIRS} ./include)
 

@@ -15,7 +15,7 @@ add_executable(oneshot_timer_tests
    ./src/BusyOneShotLatencyMeasurer.cpp
    ./src/IdleOneShotLatencyMeasurer.cpp
 )
-target_link_libraries(oneshot_timer_tests rt_tests_support ${catkin_LIBRARIES})
+target_link_libraries(oneshot_timer_tests ${catkin_LIBRARIES})
 
 install(DIRECTORY launch
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch

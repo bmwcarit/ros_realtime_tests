@@ -16,7 +16,7 @@ add_executable(communication_tests_publisher
    ./src/ArgumentParser.cpp
    ./src/ct_publisher_node.cpp
 )
-target_link_libraries(communication_tests_publisher rt_tests_support ${catkin_LIBRARIES})
+target_link_libraries(communication_tests_publisher ${catkin_LIBRARIES})
 
 add_executable(communication_tests_subscriber
    ./src/Config.cpp
@@ -24,7 +24,7 @@ add_executable(communication_tests_subscriber
    ./src/ArgumentParser.cpp
    ./src/ct_subscriber_node.cpp
 )
-target_link_libraries(communication_tests_subscriber rt_tests_support ${catkin_LIBRARIES})
+target_link_libraries(communication_tests_subscriber ${catkin_LIBRARIES})
 
 install(DIRECTORY launch
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
