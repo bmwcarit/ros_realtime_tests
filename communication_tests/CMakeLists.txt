@@ -16,6 +16,7 @@ add_executable(communication_tests_publisher
    ./src/ArgumentParser.cpp
    ./src/ct_publisher_node.cpp
 )
+add_dependencies(communication_tests_publisher ${PROJECT_NAME}_gencpp)
 target_link_libraries(communication_tests_publisher ${catkin_LIBRARIES})
 
 add_executable(communication_tests_subscriber
@@ -24,6 +25,7 @@ add_executable(communication_tests_subscriber
    ./src/ArgumentParser.cpp
    ./src/ct_subscriber_node.cpp
 )
+add_dependencies(communication_tests_subscriber ${PROJECT_NAME}_gencpp)
 target_link_libraries(communication_tests_subscriber ${catkin_LIBRARIES})
 
 install(DIRECTORY launch
