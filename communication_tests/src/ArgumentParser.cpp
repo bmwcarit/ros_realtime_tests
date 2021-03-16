@@ -64,6 +64,10 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 		{
 			config->startDelay = atoi(argv[i+1]);
 			i++;
+		} else if(arg.compare("-t") == 0)
+		{
+			config->topic = std::string(argv[i+1]);
+			i++;
 		}
 	}
 	return true;
@@ -71,7 +75,7 @@ bool ArgumentParser::parseArgs(int argc, char* argv[])
 
 void ArgumentParser::printUsage()
 {
-	Logger::ERROR("Args: [-f <frequency>] [-r <repetitions>] [-s <0/RR/FIFO>] [-l <payload_length>] [-p <file_prefix>] [-d <start_delay(seconds)>]");
+	Logger::ERROR("Args: [-f <frequency>] [-r <repetitions>] [-s <0/RR/FIFO>] [-l <payload_length>] [-p <file_prefix>] [-d <start_delay(seconds)>] [-t <topic>]");
 }
 
 ArgumentParser::~ArgumentParser()

@@ -26,6 +26,7 @@ public:
 	int payloadLength;
 	int amountMessages;
 	std::string namePrefix;
+	std::string topic;
 private:
 	Config();
 	~Config();

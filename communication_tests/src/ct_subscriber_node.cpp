@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	}
 	ros::init(argc, argv, "communication_tests_subscriber");
 	config->nodeHandle = new ros::NodeHandle();
-	Subscriber subscriber("communication_tests");
+	Subscriber subscriber(config->topic);
 	subscriber.startMeasurement();
 	subscriber.printMeasurementResults();
 	subscriber.saveGnuplotData();

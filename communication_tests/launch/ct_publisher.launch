@@ -5,7 +5,9 @@
   <arg name="p" default="" />
   <arg name="d" default="1" />
   <arg name="l" default="0" />
+  <arg name="t" default="bypass"/>
+  
   <node name="ct_publisher" pkg="communication_tests" type="communication_tests_publisher"
-   args="-s $(arg s) -r $(arg r) -f $(arg f) -p '$(arg p)' -d $(arg d) -l $(arg l)"
+   args="-s $(arg s) -r $(arg r) -f $(arg f) -p '$(arg p)' -d $(arg d) -l $(arg l) -t $(arg t)"
   />
 </launch>

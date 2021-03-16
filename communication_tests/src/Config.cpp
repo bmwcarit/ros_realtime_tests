@@ -17,7 +17,7 @@ Config* Config::configInstance = 0;
 Config::Config() :
 	nodeHandle(0), rtPrio(false), fifoScheduling(false),
 	startDelay(0), pubFrequency(0), payloadLength(0),
-	amountMessages(0), namePrefix("")
+	amountMessages(0), namePrefix(""), topic("communication_test")
 {
 }
 

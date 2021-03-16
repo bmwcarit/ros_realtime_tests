@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	}
 	ros::init(argc, argv, "communication_tests_publisher");
 	config->nodeHandle = new ros::NodeHandle();
-	Publisher publisher("communication_tests");
+	Publisher publisher(config->topic);
 	sleep(config->startDelay);
 	publisher.publish();
 	ros::shutdown();

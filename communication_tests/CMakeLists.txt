@@ -28,11 +28,17 @@ add_executable(communication_tests_subscriber
 add_dependencies(communication_tests_subscriber ${PROJECT_NAME}_gencpp)
 target_link_libraries(communication_tests_subscriber ${catkin_LIBRARIES})
 
+add_executable(bypass_node
+   ./src/bypass_node.cpp
+)
+add_dependencies(bypass_node ${PROJECT_NAME}_gencpp)
+target_link_libraries(bypass_node ${catkin_LIBRARIES})
+
 install(DIRECTORY launch
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
 
-install(TARGETS communication_tests_publisher communication_tests_subscriber
+install(TARGETS communication_tests_publisher communication_tests_subscriber bypass_node
    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
