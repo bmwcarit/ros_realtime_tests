@@ -8,6 +8,6 @@
   <arg name="t" default="communication_test"/>
   
   <node name="ct_subscriber" pkg="communication_tests" type="communication_tests_subscriber"
-   args="-s $(arg s) -r $(arg r) -f $(arg f) -p '$(arg p)' -d $(arg d) -l $(arg l) -t $(arg t)"
+   args="-s $(arg s) -r $(arg r) -f $(arg f) -p '$(arg p)' -d $(arg d) -l $(arg l) -t '$(arg t)'"
   />
 </launch>
